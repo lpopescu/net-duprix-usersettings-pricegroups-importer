@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/DuprixUserProductAuthConverter/bin/Debug
+/DuprixUserProductAuthConverter/obj/Debug
+/.vs/DuprixUserProductAuthConverter/v14
+/packages
+/_NCrunch_DuprixUserProductAuthConverter
+/DuprixUserProductAuthConverter.ncrunchsolution.user
+/DuprixUserProductAuthConverter.v2.ncrunchsolution
