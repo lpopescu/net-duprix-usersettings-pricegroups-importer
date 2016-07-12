@@ -62,24 +62,24 @@
       <HintPath>..\packages\Unity.4.0.1\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="net-product-webservice.Client, Version=0.1.91.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\net-product-webservice.Client.0.1.91.0\lib\net45\net-product-webservice.Client.dll</HintPath>
+    <Reference Include="net-product-webservice.Client, Version=0.1.95.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\net-product-webservice.Client.0.1.95.0\lib\net45\net-product-webservice.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="net-product-webservice.Dto, Version=0.1.91.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\net-product-webservice.Client.0.1.91.0\lib\net45\net-product-webservice.Dto.dll</HintPath>
+    <Reference Include="net-product-webservice.Dto, Version=0.1.95.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\net-product-webservice.Client.0.1.95.0\lib\net45\net-product-webservice.Dto.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PriceGroupWebservice.Client, Version=0.1.26.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PriceGroupWebService.Client.0.1.26.0\lib\net45\PriceGroupWebservice.Client.dll</HintPath>
+    <Reference Include="PriceGroupWebservice.Client, Version=0.1.29.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PriceGroupWebService.Client.0.1.29.0\lib\net45\PriceGroupWebservice.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PriceGroupWebservice.Dto, Version=0.1.26.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PriceGroupWebService.Client.0.1.26.0\lib\net45\PriceGroupWebservice.Dto.dll</HintPath>
+    <Reference Include="PriceGroupWebservice.Dto, Version=0.1.29.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PriceGroupWebService.Client.0.1.29.0\lib\net45\PriceGroupWebservice.Dto.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
@@ -95,8 +95,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="WebserviceClientToolkit, Version=0.1.56.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebServiceClientToolkit.0.1.56\lib\net45\WebserviceClientToolkit.dll</HintPath>
+    <Reference Include="WebserviceClientToolkit, Version=0.1.59.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebServiceClientToolkit.0.1.59\lib\net45\WebserviceClientToolkit.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
