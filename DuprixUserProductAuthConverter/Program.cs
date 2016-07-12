@@ -6,6 +6,10 @@ using System.Linq;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity;
 
+using PriceGroupWebservice.Dto;
+
+using WebserviceClientToolkit.ClientRepositories;
+
 namespace UserGroupsCsvToJson
 {
     internal class Program
@@ -14,18 +18,12 @@ namespace UserGroupsCsvToJson
         {
             if(args[0] == null)
             {
-                Console.WriteLine("The parameter was not specified.");
-                Console.WriteLine("usage: userproductauthcsvconverter -[p/u] [file_path]");
-                Console.WriteLine("   -p: process price groups file");
-                Console.WriteLine("   -u: process user settings file");
+                PrintParametersUsage("The parameter was not specified.");
                 return;
             }
             if(args[1] == null)
             {
-                Console.WriteLine("The file path was not specified.");
-                Console.WriteLine("usage: userproductauthcsvconverter -[p/u] [file_path]");
-                Console.WriteLine("   -p: process price groups file");
-                Console.WriteLine("   -u: process user settings file");
+                PrintParametersUsage("The file path was not specified.");
                 return;
             }
 
@@ -51,6 +49,25 @@ namespace UserGroupsCsvToJson
 
                 userSettingsParser.Export(userSettingsList, fileInfo.DirectoryName);
                 userSettingsParser.UploadSettings(userSettingsList);
+            }
+            else if(parameter == "-purr")
+            {                
+                var priceGroupStore = container.Resolve<PriceGroupStore>();
+
+                RepositoryResult<IEnumerable<PriceGroupDto>> priceGroupsRepositoryResult = priceGroupStore.GetAll();
+                if(priceGroupsRepositoryResult.Success)
+                {
+                    foreach (var priceGroup in priceGroupsRepositoryResult.Result)
+                    {
+                        priceGroup.RoundingRules = true;
+                        var updateResult = priceGroupStore.Update(priceGroup);
+
+                        if (updateResult.Success)
+                            Console.WriteLine($"Updated price group {priceGroup.Id} - {priceGroup.Name}");
+                        else                        
+                            Console.WriteLine($"FAILED to updated price group {priceGroup.Id} - {priceGroup.Name}");   
+                    }
+                }
             }
             else if(parameter == "-p")
             {
@@ -78,6 +95,15 @@ namespace UserGroupsCsvToJson
                 priceGroupsParser.Export(duplicates, fileInfo.DirectoryName, "duplicates.json");
                 priceGroupsParser.Upload(priceGroups);
             }
+        }
+
+        private static void PrintParametersUsage(string errorMsg)
+        {
+            Console.WriteLine(errorMsg);
+            Console.WriteLine("usage: userproductauthcsvconverter -[p/u] [file_path]");
+            Console.WriteLine("   -p: process price groups file");
+            Console.WriteLine("   -u: process user settings file");
+            Console.WriteLine("   -purr: updates price groups rounding rules to true");
         }
     }
 

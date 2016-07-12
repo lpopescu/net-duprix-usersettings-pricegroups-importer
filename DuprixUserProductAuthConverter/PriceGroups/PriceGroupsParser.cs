@@ -35,7 +35,7 @@ namespace UserGroupsCsvToJson
         {
             foreach (var priceGroup in priceGroups)
             {
-                var result = _priceGroupStore.Update(priceGroup);
+                var result = _priceGroupStore.Save(priceGroup);
                 if (result.Success)
                     Console.WriteLine($"saved settings for {priceGroup.Name}");
                 else
