@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 using PriceGroupWebservice.Client;
 using PriceGroupWebservice.Dto;
@@ -18,10 +20,21 @@ namespace UserGroupsCsvToJson
             _priceRuleRepository = priceRuleRepository;
         }
 
-        public RepositoryResult<PriceGroupDto> Update(PriceGroupDto priceGroup)
+        public RepositoryResult<PriceGroupDto> Save(PriceGroupDto priceGroup)
         {
             var result = _priceGroupRepository.PostAsync(priceGroup).Result;
             return result;
+        }
+
+        public RepositoryResult<PriceGroupDto> Update(PriceGroupDto priceGroup)
+        {
+            var result = _priceGroupRepository.PutAsync(priceGroup).Result;
+            return result;
+        }
+
+        public RepositoryResult<IEnumerable<PriceGroupDto>> GetAll()
+        {
+            return _priceGroupRepository.GetAllAsync().Result;
         }
 
         public PriceRuleDto GetPriceRule(int id)
