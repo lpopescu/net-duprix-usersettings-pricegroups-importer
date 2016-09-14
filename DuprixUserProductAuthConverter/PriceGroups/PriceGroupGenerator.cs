@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using log4net;
+
 using PriceGroupWebservice.Dto;
 
 namespace UserGroupsCsvToJson
@@ -9,12 +11,14 @@ namespace UserGroupsCsvToJson
     public class PriceGroupGenerator
     {
         private readonly PriceGroupStore _priceGroupStore;
+        private readonly ILog _logger;
         private readonly ProductTypeStore _productTypeStore;
 
-        public PriceGroupGenerator(ProductTypeStore productTypeStore, PriceGroupStore priceGroupStore)
+        public PriceGroupGenerator(ProductTypeStore productTypeStore, PriceGroupStore priceGroupStore, ILog logger)
         {
             _productTypeStore = productTypeStore;
             _priceGroupStore = priceGroupStore;
+            _logger = logger;
         }
 
         public IEnumerable<PriceGroupDto> Generate(IEnumerable<PriceGroupRawDto> priceGroupsRawDtos)
@@ -27,7 +31,7 @@ namespace UserGroupsCsvToJson
                     PriceRuleDto priceRule = null;
                     try
                     {
-                        productTypeName = _productTypeStore.GetProductType(g.Key.ProductTypeId);
+                        productTypeName = _productTypeStore.GetProductTypeName(g.Key.ProductTypeId);
                         priceRule = _priceGroupStore.GetPriceRule(g.Key.PriceRuleId);
 
                         return new PriceGroupDto
@@ -45,7 +49,7 @@ namespace UserGroupsCsvToJson
                     }
                     catch(Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        _logger.Error($"{ex.Message} type: {g.Key.ProductTypeId} {g.Key.Name}, subsidiary {g.Key.SubsidiaryId}");
                     }
 
                     return null;

@@ -1,5 +1,8 @@
 ﻿using ApplicationSettingsWebservice.Client;
 
+using log4net;
+using log4net.Config;
+
 using Microsoft.Practices.Unity;
 
 using net_product_webservice.Client;
@@ -12,6 +15,11 @@ namespace UserGroupsCsvToJson
     {
         protected override void Initialize()
         {
+            XmlConfigurator.Configure();
+            var logger = LogManager.GetLogger(typeof(Program));
+
+            Container.RegisterInstance(logger);
+
             Container.RegisterInstance(new AppSettings());
             var appSettings = Container.Resolve<AppSettings>();
             appSettings.Load();

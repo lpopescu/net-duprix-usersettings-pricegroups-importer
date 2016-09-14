@@ -16,12 +16,18 @@ namespace UserGroupsCsvToJson
             _repository = repository;
         }
 
-        public string GetProductType(int id)
+        public string GetProductTypeName(int id)
         {
             RepositoryResult<ProductTypeDto> result = _repository.GetByIdAsync(id).Result;
             if(result.Success)
                 return result.Result.Name;
             throw new Exception($"Failed to retrieve product type for {id}");
+        }
+
+        public RepositoryResult<ProductTypeDto> GetProductType(int id)
+        {
+            RepositoryResult<ProductTypeDto> result = _repository.GetByIdAsync(id).Result;
+            return result;
         }
     }
 }
