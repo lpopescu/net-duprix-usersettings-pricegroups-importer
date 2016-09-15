@@ -19,5 +19,10 @@ namespace UserGroupsCsvToJson
             var result = _repository.StoreSettingsAsync(userSettings).Result;
             return result;
         }
+
+        public RepositoryResult<DuprixSettingsDto> Get(string userName)
+        {
+            return _repository.GetSettingsAsync(userName).Result;
+        }
     }
 }

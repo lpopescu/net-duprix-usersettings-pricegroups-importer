@@ -16,7 +16,22 @@ using WebserviceClientToolkit.ClientRepositories;
 namespace UserGroupsCsvToJson
 {
     internal class Program
-    {        
+    {
+        private static void PrintParametersUsage(string errorMsg)
+        {
+            Console.WriteLine(errorMsg);
+            Console.WriteLine("usage: usergroupscsvtojson -[options] [file_path]/[user_name]");
+            Console.WriteLine("   -purr: updates all price groups rounding rules to true");
+            Console.WriteLine(" file_path options:");
+            Console.WriteLine("   -p: process price groups file");
+            Console.WriteLine("   -u: process user settings file");
+            Console.WriteLine("   -ar: imports automation rules file");
+            Console.WriteLine(" user_name options:");
+            Console.WriteLine("   -deletepg: deletes price groups for user");
+            Console.WriteLine("   -delete_excl_pg: deletes price groups except for these user names");
+            Console.WriteLine("   -upar: updates automation rules flags to true");
+        }
+
         private static void Main(string[] args)
         {
             if(args[0] == null)
@@ -33,10 +48,24 @@ namespace UserGroupsCsvToJson
             {
                 DeletePriceGroupCommand(args, container);
             }
-
-            else if(parameter == "-purr")
+            else if (parameter == "-delete_excl_pg")
             {
-                //update price groups
+                if(args[1] == null)
+                {
+                    PrintParametersUsage("The user name comma separated list was not specified.");
+                    return;
+                }
+                string userNamesCsv = args[1];
+                string[] userNames = userNamesCsv.Split(new[] {','});
+
+                DeleteAllPriceGroupsExceptCommand(container, userNames);
+            }
+            else if(parameter == "-upar")
+            {
+                UpdateAutomationRuleFlagsCommand(args, container);
+            }
+            else if(parameter == "-purr")
+            {             
                 UpdatePriceGroupCommand(container);
             }
             else
@@ -56,19 +85,78 @@ namespace UserGroupsCsvToJson
                 var fileInfo = new FileInfo(filePath);
 
                 if(parameter == "-u")
-                {
-                    //import userSettings
+                {                    
                     ImportUserSettingsCommand(container, filePath, isFirstLineHeader, fileInfo);
                 }
                 else if(parameter == "-p")
-                {
-                    //check for duplicate price groups
+                {                 
                     ImportPriceGroupsCommand(container, filePath, isFirstLineHeader, fileInfo);
                 }
                 else if(parameter == "-ar")
                 {
                     ImportAutomationRulesCommand(container, filePath, isFirstLineHeader, fileInfo);
                 }
+            }
+        }
+
+        private static void DeleteAllPriceGroupsExceptCommand(UnityContainer container, string[] userNames)
+        {
+            var logger = container.Resolve<ILog>();
+            var priceGroupStore = container.Resolve<PriceGroupStore>();
+            
+            List<PriceGroupDto> excludedPricegroups = new List<PriceGroupDto>();
+            foreach (string userName in userNames)
+            {
+                logger.Info($"Getting price groups for {userName}");
+                var priceGroups = priceGroupStore.GetAllFor(userName);
+
+                excludedPricegroups.AddRange(priceGroups);
+            }
+            var comparer = new PriceGroupComparer();
+            var allPriceGroups = priceGroupStore.GetAll().Result;
+            var toDeletePriceGroups = allPriceGroups.Except(excludedPricegroups, comparer);
+
+            foreach(var priceGroup in toDeletePriceGroups)
+            {
+                if(priceGroupStore.Delete(priceGroup.Id).Success)
+                {
+                    logger.Info(
+                        $"Deleted price group {priceGroup.Id} {priceGroup.Name} for type {priceGroup.ProductType.Id} {priceGroup.ProductType.Name}");
+                }
+                else
+                {
+                    logger.Error($"Failed to delete price group {priceGroup.Id} {priceGroup.Name}");
+                }
+            }
+        }
+
+        private static void UpdateAutomationRuleFlagsCommand(string[] args, UnityContainer container)
+        {
+            var logger = container.Resolve<ILog>();
+            if(args[1] == null)
+            {
+                PrintParametersUsage("The user name was not specified.");
+                return;
+            }
+
+            var automationRuleStore = container.Resolve<AutomationRuleStore>();
+            var priceGroupStore = container.Resolve<PriceGroupStore>();
+
+            string userName = args[1];
+            var userPriceGroups = priceGroupStore.GetAllFor(userName);
+            var userAutomationRules = automationRuleStore.GetAll(userPriceGroups);
+
+            foreach(var automationRule in userAutomationRules)
+            {
+                automationRule.IsMaximumNegativePriceDifferencePercentageRuleEnabled = true;
+                automationRule.IsMaximumPositivePriceDifferencePercentageRuleEnabled = true;
+                automationRule.IsMaximumToppedWeightedSalesRuleEnabled = true;
+                automationRule.IsMaximumPriceIndexRuleEnabled = true;
+                automationRule.IsMinimumSalesMarginPercentageRuleEnabled = true;
+
+                var result = automationRuleStore.UpdateAsync(automationRule).Result;
+                if(result.Success)
+                    logger.Info($"Updated automation rule {automationRule.Id} for price group {automationRule.PriceGroupId}");
             }
         }
 
@@ -157,31 +245,48 @@ namespace UserGroupsCsvToJson
 
         private static void DeletePriceGroupCommand(string[] args, UnityContainer container)
         {
-            var priceGroupStore = container.Resolve<PriceGroupStore>();
-
-            if(args[1] == null)
+            var priceGroupStore = container.Resolve<PriceGroupStore>();            
+            if (args[1] == null)
             {
                 PrintParametersUsage("The user name was not specified.");
                 return;
             }
 
+            var logger = container.Resolve<ILog>();
             string userName = args[1];
-            priceGroupStore.DeleteFor(userName);
+            var priceGroups = priceGroupStore.DeleteFor(userName);
+
+            logger.Info($"For {userName}");
+            Console.WriteLine("Delete also automation rules for user price groups? (y/n)");
+            if(Console.ReadKey().Key == ConsoleKey.Y)
+            {
+                foreach (var priceGroup in priceGroups)
+                {
+                    logger.Info($"  deleting automation rules for pricegroup {priceGroup.Id} {priceGroup.Name}");
+                    priceGroupStore.DeleteAutomationRulesFor(priceGroup);
+                }
+
+            }            
         }
 
-        private static void PrintParametersUsage(string errorMsg)
-        {
-            Console.WriteLine(errorMsg);
-            Console.WriteLine("usage: userproductauthcsvconverter -[p/u] [file_path]");
-            Console.WriteLine("   -p: process price groups file");
-            Console.WriteLine("   -u: process user settings file");
-            Console.WriteLine("   -purr: updates price groups rounding rules to true");
-        }
     }
 
     public class DuplicatePriceGroup
     {
         public PriceGroupRawDto Duplicate { get; set; }
         public PriceGroupRawDto FirstOccurrence { get; set; }
+    }
+
+    public class PriceGroupComparer : IEqualityComparer<PriceGroupDto>
+    {
+        public bool Equals(PriceGroupDto x, PriceGroupDto y)
+        {
+            return x.Id.Equals(y.Id);
+        }
+
+        public int GetHashCode(PriceGroupDto obj)
+        {
+            return obj.Id.GetHashCode();
+        }
     }
 }
