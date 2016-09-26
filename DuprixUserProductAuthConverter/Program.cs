@@ -99,12 +99,51 @@ namespace UserGroupsCsvToJson
             }
         }
 
+        private static void RemoveDoubleSubsidiaryPriceGroupAndUpdateRemainingPriceGroups(UnityContainer container,
+                                                                                          string userName)
+        {
+            var logger = container.Resolve<ILog>();
+            var priceGroupStore = container.Resolve<PriceGroupStore>();
+
+            logger.Info($"Getting price groups for {userName}");
+
+            var userPriceGroups = priceGroupStore.GetAllFor(userName);
+            var toDeletePriceGroups = userPriceGroups
+                .Where(pg => pg.Subsidiaries.Count() == 1 && pg.Subsidiaries.Contains(3));
+
+            foreach (var priceGroup in toDeletePriceGroups)
+            {
+                if (priceGroupStore.Delete(priceGroup.Id).Success)
+                {
+                    logger.Info(
+                        $"Deleted price group {priceGroup.Id} {priceGroup.Name} for type {priceGroup.ProductType.Id} {priceGroup.ProductType.Name}");
+                }
+                else
+                {
+                    logger.Error($"Failed to delete price group {priceGroup.Id} {priceGroup.Name}");
+                }
+            }
+
+            var updatePgs = userPriceGroups.Where(pg => pg.Subsidiaries.Count() == 1 && pg.Subsidiaries.Contains(1));
+            foreach (var priceGroup in updatePgs)
+            {
+                priceGroup.Subsidiaries = priceGroup.Subsidiaries.Concat(new[] { 3 });
+                var updateResult = priceGroupStore.Update(priceGroup);
+
+                if (updateResult.Success)
+                    logger.Info($"Updated price group {priceGroup.Id} - {priceGroup.Name}");
+                else
+                    logger.Error($"FAILED to updated price group {priceGroup.Id} - {priceGroup.Name}");
+            }
+        }
+
         private static void DeleteAllPriceGroupsExceptCommand(UnityContainer container, string[] userNames)
         {
             var logger = container.Resolve<ILog>();
             var priceGroupStore = container.Resolve<PriceGroupStore>();
-            
+
             List<PriceGroupDto> excludedPricegroups = new List<PriceGroupDto>();
+            
             foreach (string userName in userNames)
             {
                 logger.Info($"Getting price groups for {userName}");
@@ -114,8 +153,8 @@ namespace UserGroupsCsvToJson
             }
             var comparer = new PriceGroupComparer();
             var allPriceGroups = priceGroupStore.GetAll().Result;
-            var toDeletePriceGroups = allPriceGroups.Except(excludedPricegroups, comparer);
-
+            var toDeletePriceGroups = allPriceGroups.Except(excludedPricegroups, comparer);            
+            
             foreach(var priceGroup in toDeletePriceGroups)
             {
                 if(priceGroupStore.Delete(priceGroup.Id).Success)
@@ -127,7 +166,7 @@ namespace UserGroupsCsvToJson
                 {
                     logger.Error($"Failed to delete price group {priceGroup.Id} {priceGroup.Name}");
                 }
-            }
+            }         
         }
 
         private static void UpdateAutomationRuleFlagsCommand(string[] args, UnityContainer container)
@@ -233,6 +272,7 @@ namespace UserGroupsCsvToJson
                 foreach(var priceGroup in priceGroupsRepositoryResult.Result)
                 {
                     priceGroup.RoundingRules = true;
+                    
                     var updateResult = priceGroupStore.Update(priceGroup);
 
                     if(updateResult.Success)
