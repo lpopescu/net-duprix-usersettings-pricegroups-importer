@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+using AutoMapper;
+
 using log4net;
 
 using Microsoft.Practices.Unity;
@@ -220,6 +222,7 @@ namespace UserGroupsCsvToJson
         {
             var priceGroupsParser = container.Resolve<PriceGroupsParser>();
             var priceGroupDtos = priceGroupsParser.Parse(filePath, isFirstLineHeader);
+            var userSettingsStore = container.Resolve<UserSettingsStore>();
 
             List<PriceGroupRawDto> tempPriceGroups = priceGroupDtos.ToList();
 
@@ -229,7 +232,7 @@ namespace UserGroupsCsvToJson
                 foreach(var tpg in tempPriceGroups)
                 {
                     if(pg.Name != tpg.Name && pg.ProductId == tpg.ProductId &&
-                       pg.SubsidiaryId == tpg.SubsidiaryId)
+                       !pg.Subsidiaries.Except(tpg.Subsidiaries).Any())
                         duplicates.Add(new DuplicatePriceGroup {Duplicate = tpg, FirstOccurrence = pg});
                 }
             }
@@ -237,10 +240,24 @@ namespace UserGroupsCsvToJson
             var priceGroupGenerator = container.Resolve<PriceGroupGenerator>();
             var priceGroups = priceGroupGenerator.Generate(priceGroupDtos);
 
-            priceGroupsParser.Export(priceGroups, fileInfo.DirectoryName);
-            priceGroupsParser.Export(duplicates, fileInfo.DirectoryName, "duplicates.json");
+            var fileExporter = container.Resolve<FileExport>();
+            var mapper = container.Resolve<IMapper>();
+
+            fileExporter.ExportToJson(priceGroups, fileInfo.DirectoryName);
+            fileExporter.ExportToJson(duplicates, fileInfo.DirectoryName, "duplicates.json");
             Console.WriteLine("uploading price groups");
-            priceGroupsParser.Upload(priceGroups);
+            var updatedPriceGroups = priceGroupsParser.Upload(priceGroups);
+
+            var priceGroupRulesTemplate = mapper.Map<IEnumerable<PriceGroupRuleDto>>(updatedPriceGroups)
+                .ToList();
+            foreach (var pg in priceGroupRulesTemplate)
+            {
+                var userSettings = userSettingsStore.Get(pg.ProductTypeId);
+
+                pg.Buyer = userSettings.FirstOrDefault()?.UserName ?? "";
+            }
+
+            fileExporter.ExportToCsv(priceGroupRulesTemplate, fileInfo.DirectoryName, "price_groups_rule_template.csv");
             Console.WriteLine("Finished!");
         }
 
@@ -307,26 +324,6 @@ namespace UserGroupsCsvToJson
                 }
 
             }            
-        }
-
-    }
-
-    public class DuplicatePriceGroup
-    {
-        public PriceGroupRawDto Duplicate { get; set; }
-        public PriceGroupRawDto FirstOccurrence { get; set; }
-    }
-
-    public class PriceGroupComparer : IEqualityComparer<PriceGroupDto>
-    {
-        public bool Equals(PriceGroupDto x, PriceGroupDto y)
-        {
-            return x.Id.Equals(y.Id);
-        }
-
-        public int GetHashCode(PriceGroupDto obj)
-        {
-            return obj.Id.GetHashCode();
         }
     }
 }

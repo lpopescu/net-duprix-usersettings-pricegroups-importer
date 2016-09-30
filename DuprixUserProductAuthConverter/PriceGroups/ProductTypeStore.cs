@@ -34,7 +34,7 @@ namespace UserGroupsCsvToJson
             return result;
         }
 
-        public IEnumerable<ProductTypeProductRelationDto> GetProductTypeId(IEnumerable<int> productIds)
+        public IEnumerable<ProductTypeProductRelationDto> GetProductTypesFor(IEnumerable<int> productIds)
         {
             var result = _productRepository.GetProductHierarchyByIdsAsync(productIds).Result;
             if (result.Success)

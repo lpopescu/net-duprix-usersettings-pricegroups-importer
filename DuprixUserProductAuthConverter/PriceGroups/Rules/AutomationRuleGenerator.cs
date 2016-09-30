@@ -48,7 +48,7 @@ namespace UserGroupsCsvToJson
                     if (priceGroupDtoResult.Success)
                     {
                         existingPriceGroups = new[] { priceGroupDtoResult.Result };
-                        priceGroups.Result = UpdatePriceGroups(priceGroups.Result, existingPriceGroups);
+                        priceGroups.Result = ConsolidatePriceGroups(priceGroups.Result, existingPriceGroups);
                     }
                 }
 
@@ -90,14 +90,12 @@ namespace UserGroupsCsvToJson
             return automationRules;
         }
 
-
-        private IEnumerable<PriceGroupDto> UpdatePriceGroups(IEnumerable<PriceGroupDto> allPriceGroups, IEnumerable<PriceGroupDto> existingPriceGroups)
+        private IEnumerable<PriceGroupDto> ConsolidatePriceGroups(IEnumerable<PriceGroupDto> allPriceGroups, IEnumerable<PriceGroupDto> existingPriceGroups)
         {
             allPriceGroups = allPriceGroups.Concat(existingPriceGroups);
             return allPriceGroups;
 
         }
-        
 
         private RepositoryResult<PriceGroupDto> ImportIncompletePriceGroup(AutomationRuleRawDto automationRuleRawDto)
         {

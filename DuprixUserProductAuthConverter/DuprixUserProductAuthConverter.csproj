@@ -46,6 +46,10 @@
       <HintPath>..\packages\AutoMapper.5.1.1\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="CsvHelper, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.2.16.3.0\lib\net45\CsvHelper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
@@ -106,16 +110,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
-    <Compile Include="AutomationRuleGenerator.cs" />
-    <Compile Include="AutomationRuleParser.cs" />
+    <Compile Include="DuplicatePriceGroup.cs" />
+    <Compile Include="Export\FileExport.cs" />
+    <Compile Include="PriceGroupComparer.cs" />
+    <Compile Include="PriceGroups\Rules\AutomationRuleGenerator.cs" />
+    <Compile Include="PriceGroups\Rules\AutomationRuleParser.cs" />
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="PriceGroups\AutomationRule.cs" />
-    <Compile Include="PriceGroups\AutomationRuleStore.cs" />
+    <Compile Include="PriceGroups\Rules\AutomationRule.cs" />
+    <Compile Include="PriceGroups\Rules\AutomationRuleStore.cs" />
     <Compile Include="PriceGroups\PriceGroupGenerator.cs" />
     <Compile Include="PriceGroups\PriceGroupRawDto.cs" />
+    <Compile Include="Export\PriceGroupRuleDto.cs" />
     <Compile Include="PriceGroups\PriceGroupsParser.cs" />
     <Compile Include="PriceGroups\PriceGroupStore.cs" />
-    <Compile Include="PriceGroups\PriceRuleDto.cs" />
+    <Compile Include="PriceGroups\Rules\AutomationRuleRawDto.cs" />
+    <Compile Include="PriceGroups\ProductTypeProductRelationDto.cs" />
     <Compile Include="PriceGroups\ProductTypeStore.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

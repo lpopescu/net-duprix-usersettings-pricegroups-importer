@@ -23,8 +23,9 @@ namespace UserGroupsCsvToJson
 
         public IEnumerable<PriceGroupDto> Generate(IEnumerable<PriceGroupRawDto> priceGroupsRawDtos)
         {
-            var priceGroups = priceGroupsRawDtos
-                .GroupBy(p => new {p.Name, p.SubsidiaryId, p.ProductTypeId, p.PriceRuleId})
+            var priceGroupRawList = FillProductTypes(priceGroupsRawDtos.ToList());
+            var priceGroups = priceGroupRawList
+                .GroupBy(p => new {p.Name, p.Subsidiaries, ProductTypeId = p.ProductType.Id, p.PriceRuleId})
                 .Select(g =>
                 {
                     string productTypeName = null;
@@ -37,7 +38,7 @@ namespace UserGroupsCsvToJson
                         return new PriceGroupDto
                                {
                                    Name = g.Key.Name,
-                                   Subsidiaries = new[] {g.Key.SubsidiaryId},
+                                   Subsidiaries = g.Key.Subsidiaries,
                                    Products = g.Select(pg => pg.ProductId).ToList(),
                                    ProductType = new ProductTypeDto
                                                  {
@@ -49,13 +50,27 @@ namespace UserGroupsCsvToJson
                     }
                     catch(Exception ex)
                     {
-                        _logger.Error($"{ex.Message} type: {g.Key.ProductTypeId} {g.Key.Name}, subsidiary {g.Key.SubsidiaryId}");
+                        _logger.Error($"{ex.Message} type: {g.Key.ProductTypeId} {g.Key.Name}, subsidiary {string.Join( "|", g.Key.Subsidiaries)}");
                     }
 
                     return null;
                 }).Where(g => g != null).ToArray();
 
             return priceGroups;
+        }
+
+        private IEnumerable<PriceGroupRawDto> FillProductTypes(List<PriceGroupRawDto> priceGroupsRawDtos)
+        {
+            var productIds = priceGroupsRawDtos.Select(p => p.ProductId);
+            var productTypeProductDtos = _productTypeStore.GetProductTypesFor(productIds);
+
+            foreach(var productTypeProductDto in productTypeProductDtos)
+            {
+                var priceGroupRaw = priceGroupsRawDtos.First(pg => pg.ProductId == productTypeProductDto.ProductId);
+                priceGroupRaw.ProductType = productTypeProductDto.ProductType;
+            }
+
+            return priceGroupsRawDtos;
         }
     }
 }
