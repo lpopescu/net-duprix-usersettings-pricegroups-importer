@@ -204,6 +204,9 @@ namespace UserGroupsCsvToJson
         private static void ImportAutomationRulesCommand(UnityContainer container, string filePath, bool isFirstLineHeader, FileInfo fileInfo)
         {
             var automationRuleParser = container.Resolve<AutomationRuleParser>();
+            var priceGroupStore = container.Resolve<PriceGroupStore>();
+            var logger = container.Resolve<ILog>();
+
             var automationRuleRawDtos = automationRuleParser.Parse(filePath, isFirstLineHeader);
 
             var automationRuleGenerator = container.Resolve<AutomationRuleGenerator>();            
@@ -213,6 +216,17 @@ namespace UserGroupsCsvToJson
             automationRuleParser.Export(automationRuleDtos, fileInfo.DirectoryName);
 
             automationRuleParser.Upload(automationRules);
+
+            foreach (var ar in automationRuleRawDtos)
+            {
+                var updateResult = priceGroupStore.UpdateFrom(ar);
+
+                if (updateResult.Success)
+                    logger.Info($"Updated price group {ar.PriceGroupId} - {ar.PriceGroupName}");
+                else
+                    logger.Error($"FAILED to updated price group {ar.PriceGroupId} - {ar.PriceGroupName}");
+
+            }
         }
 
         private static void ImportPriceGroupsCommand(UnityContainer container,

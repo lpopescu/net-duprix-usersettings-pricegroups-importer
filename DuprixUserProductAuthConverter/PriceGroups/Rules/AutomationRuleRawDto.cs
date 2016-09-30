@@ -11,7 +11,7 @@ namespace UserGroupsCsvToJson.PriceGroups
         public string Buyer { get; set; }
         public IEnumerable<int> Subsidiaries { get; set; }
         public bool RoundingRules { get; set; }
-        public double MinimumMargin { get; set; }
+        public decimal MinimumMargin { get; set; }
         public bool CostPlus { get; set; }
 
         public bool MinSalesMarginEnabled { get; set; }
@@ -84,6 +84,8 @@ namespace UserGroupsCsvToJson.PriceGroups
 
             RoundingRules = roundingRules;
             CostPlus = costPlus;
+            MinimumMargin = minMargin;
+
             MinSalesMarginEnabled = minSalesMarginEnabled;
             MaxPriceIndexEnabled = maxPriceIndexEnabled;
             MaxPriceIncreaseEnabled = maxPriceIncreaseEnabled;

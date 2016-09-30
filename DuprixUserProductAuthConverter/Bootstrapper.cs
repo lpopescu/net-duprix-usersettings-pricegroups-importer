@@ -14,6 +14,8 @@ using net_product_webservice.Client;
 using PriceGroupWebservice.Client;
 using PriceGroupWebservice.Dto;
 
+using UserGroupsCsvToJson.PriceGroups;
+
 namespace UserGroupsCsvToJson
 {
     public class Bootstrapper : UnityContainerExtension
@@ -63,6 +65,39 @@ namespace UserGroupsCsvToJson
                        opt => opt.MapFrom(src => src.PriceRule.Id))
                        .ForMember(dst => dst.ProductTypeId,
                        opt => opt.MapFrom(src => src.ProductType.Id));
+
+                cfg.CreateMap<AutomationRuleRawDto, AutomationRuleSettingDto>()
+                   .ForMember(dst => dst.IsPriceRuleCheckEnabled,
+                       opt => opt.MapFrom(src => src.CalculationMethodCheckEnabled))
+                   .ForMember(dst => dst.MaximumNegativePriceDifferencePercentage,
+                       opt => opt.MapFrom(src => src.MaxPriceDecrease))
+                   .ForMember(dst => dst.MaximumPositivePriceDifferencePercentage,
+                       opt => opt.MapFrom(src => src.MaxPriceIncrease))
+                   .ForMember(dst => dst.MaximumPriceIndex, opt => opt.MapFrom(src => src.MaxPriceIndex))
+                   .ForMember(dst => dst.MaximumToppedWeightedSales, opt => opt.MapFrom(src => src.MaxTopWeightedSales))
+                   .ForMember(dst => dst.MinimumSalesMarginPercentage, opt => opt.MapFrom(src => src.MinSalesMargin))
+
+                   .ForMember(dst => dst.IsMaximumPositivePriceDifferencePercentageRuleEnabled, opt => opt.MapFrom(src => src.MaxPriceDecreaseEnabled))
+                   .ForMember(dst => dst.IsMaximumPositivePriceDifferencePercentageRuleEnabled, opt => opt.MapFrom(src => src.MaxPriceIncreaseEnabled))
+                   .ForMember(dst => dst.IsMaximumPriceIndexRuleEnabled, opt => opt.MapFrom(src => src.MaxPriceIndexEnabled))
+                   .ForMember(dst => dst.IsMaximumToppedWeightedSalesRuleEnabled, opt => opt.MapFrom(src => src.MaxTopWeightedSalesEnabled))
+                   .ForMember(dst => dst.IsMinimumSalesMarginPercentageRuleEnabled, opt => opt.MapFrom(src => src.MinSalesMarginEnabled))                   
+                   .ForMember(dst => dst.PriceGroupId, opt => opt.MapFrom(src => src.PriceGroupId));
+
+                cfg.CreateMap<AutomationRuleRawDto, PriceGroupDto>()
+                   .ForMember(dst => dst.Id,
+                       opt => opt.MapFrom(src => src.PriceGroupId))
+                   .ForMember(dst => dst.Name,
+                       opt => opt.MapFrom(src => src.PriceGroupName))
+                   .ForMember(dst => dst.CostPlus,
+                       opt => opt.MapFrom(src => src.CostPlus))
+                       .ForMember(dst => dst.MinimumMargin,
+                       opt => opt.MapFrom(src => src.MinimumMargin))
+                       .ForMember(dst => dst.RoundingRules,
+                       opt => opt.MapFrom(src => src.RoundingRules))
+                       .ForMember(dst => dst.Subsidiaries,
+                       opt => opt.MapFrom(src => src.Subsidiaries));
+
                 cfg.CreateMissingTypeMaps = true;
             });
 
