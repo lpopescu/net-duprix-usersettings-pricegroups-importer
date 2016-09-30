@@ -11,8 +11,7 @@ namespace UserGroupsCsvToJson
 {
     public class UserSettingsParser
     {
-        private readonly UserSettingsStore _userSettingsStore;
-        private readonly UserSettingsGenerator _userSettignsGenerator;
+        private readonly UserSettingsStore _userSettingsStore;        
         private const string JSON_OUTPUT_FILE_NAME = "output.json";
 
         public UserSettingsParser(UserSettingsStore userSettingsStore)

@@ -112,6 +112,8 @@
     <Compile Include="AppSettings.cs" />
     <Compile Include="DuplicatePriceGroup.cs" />
     <Compile Include="Export\FileExport.cs" />
+    <Compile Include="Export\SubsidiaryConverter.cs" />
+    <Compile Include="Export\SubsidiaryMap.cs" />
     <Compile Include="PriceGroupComparer.cs" />
     <Compile Include="PriceGroups\Rules\AutomationRuleGenerator.cs" />
     <Compile Include="PriceGroups\Rules\AutomationRuleParser.cs" />

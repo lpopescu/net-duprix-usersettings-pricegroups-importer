@@ -38,7 +38,7 @@ namespace UserGroupsCsvToJson
                     priceGroups.Result.Where(
                         pg =>
                             pg.Name == automationRuleRawDto.PriceGroupName &&
-                            pg.Subsidiaries.Contains(automationRuleRawDto.SubsidiaryId)
+                            pg.Subsidiaries.Union(automationRuleRawDto.Subsidiaries).Any()
                             && pg.ProductType.Id == automationRuleRawDto.ProductTypeId);
 
                 if(!existingPriceGroups.Any())
@@ -59,7 +59,7 @@ namespace UserGroupsCsvToJson
                         var automationRuleDto = new AutomationRuleSettingDto
                                                 {
                                                     IsPriceRuleCheckEnabled =
-                                                        automationRuleRawDto.CalculationMethodCheck,
+                                                        automationRuleRawDto.CalculationMethodCheckEnabled,
                                                     MaximumNegativePriceDifferencePercentage =
                                                         automationRuleRawDto.MaxPriceDecrease,
                                                     MaximumPositivePriceDifferencePercentage =
@@ -115,8 +115,7 @@ namespace UserGroupsCsvToJson
                                       Id = productTypeDto.Result.Id,
                                       Name = productTypeDto.Result.Name
                                   },
-                              Subsidiaries =
-                                  new[] {automationRuleRawDto.SubsidiaryId},
+                              Subsidiaries = automationRuleRawDto.Subsidiaries,
                               PriceRule = _priceGroupStore.GetPriceRule(defaultPriceRuleId)
                           });
 

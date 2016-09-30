@@ -4,18 +4,6 @@ namespace UserGroupsCsvToJson.PriceGroups
 {
     public class AutomationRuleRawDto
     {
-        //public string Buyer { get; set; }
-        //public string PriceGroupName { get; set; }
-        //public int SubsidiaryId { get; set; }
-        //public int ProductTypeId { get; set; }
-        //public decimal MinSalesMargin { get; set; }
-        //public decimal MaxPriceIncrease { get; set; }
-        //public decimal MaxPriceDecrease { get; set; }
-        //public decimal MaxTopWeightedSales { get; set; }
-        //public decimal MaxPriceIndex { get; set; }
-        //public bool CalculationMethodCheck { get; set; }
-
-
         public int PriceGroupId { get; set; }
         public string PriceGroupName { get; set; }
         public int PriceRuleId { get; set; }
@@ -50,7 +38,8 @@ namespace UserGroupsCsvToJson.PriceGroups
             decimal maxPriceDecrease;
             decimal maxTopWeightedSales;
             decimal maxPriceIndex;
-            bool calculationMethodCheck;
+            bool calculationMethodCheckEnabled, roundingRules, costPlus, minSalesMarginEnabled, maxPriceIncreaseEnabled
+                , maxPriceDecreaseEnabled, maxTopWeightedSalesEnabled, maxPriceIndexEnabled;
 
             int.TryParse(parameters[0], out priceGroupId);
             PriceGroupName = parameters[1];
@@ -58,21 +47,28 @@ namespace UserGroupsCsvToJson.PriceGroups
             int.TryParse(parameters[3], out productTypeId);
             Buyer = parameters[4];
 
-            RoundingRules = bool.Parse(parameters[5]);
+            bool.TryParse(parameters[5], out roundingRules);
             decimal.TryParse(parameters[6], out minMargin);
-            CostPlus= bool.Parse(parameters[7]);
+            bool.TryParse(parameters[7], out costPlus);
 
+            bool.TryParse(parameters[8], out minSalesMarginEnabled);
+            decimal.TryParse(parameters[9], out minSalesMargin);
 
-            int.TryParse(parameters[3], out productTypeId);
-            decimal.TryParse(parameters[4], out minSalesMargin);
-            decimal.TryParse(parameters[5], out maxPriceIncrease);
-            decimal.TryParse(parameters[6], out maxPriceDecrease);
-            decimal.TryParse(parameters[7], out maxTopWeightedSales);
-            decimal.TryParse(parameters[8], out maxPriceIndex);
+            bool.TryParse(parameters[10], out maxPriceIncreaseEnabled);
+            decimal.TryParse(parameters[11], out maxPriceIncrease);
 
-            bool.TryParse(parameters[9], out calculationMethodCheck);
+            bool.TryParse(parameters[12], out maxPriceDecreaseEnabled);
+            decimal.TryParse(parameters[13], out maxPriceDecrease);
 
-            var splits = parameters[12].Split('|');
+            bool.TryParse(parameters[14], out maxTopWeightedSalesEnabled);
+            decimal.TryParse(parameters[15], out maxTopWeightedSales);
+
+            bool.TryParse(parameters[16], out maxPriceIndexEnabled);
+            decimal.TryParse(parameters[17], out maxPriceIndex);
+
+            bool.TryParse(parameters[18], out calculationMethodCheckEnabled);
+
+            var splits = parameters[19].Split('|');
             foreach (string s in splits)
             {
                 int subsidiaryId;
@@ -81,15 +77,25 @@ namespace UserGroupsCsvToJson.PriceGroups
                     subsidiaryList.Add(subsidiaryId);
                 }
             }
-
-            Subsidiaries = subsidiaryList;            
+            PriceRuleId = priceRuleId;
+            PriceGroupId = priceGroupId;
+            Subsidiaries = subsidiaryList;
             ProductTypeId = productTypeId;
+
+            RoundingRules = roundingRules;
+            CostPlus = costPlus;
+            MinSalesMarginEnabled = minSalesMarginEnabled;
+            MaxPriceIndexEnabled = maxPriceIndexEnabled;
+            MaxPriceIncreaseEnabled = maxPriceIncreaseEnabled;
+            MaxPriceDecreaseEnabled = maxPriceDecreaseEnabled;
+            MaxTopWeightedSalesEnabled = maxTopWeightedSalesEnabled;
+
             MinSalesMargin = minSalesMargin;
             MaxPriceIncrease = maxPriceIncrease;
             MaxPriceDecrease = maxPriceDecrease;
             MaxTopWeightedSales = maxTopWeightedSales;
             MaxPriceIndex = maxPriceIndex;
-            CalculationMethodCheck = calculationMethodCheck;
+            CalculationMethodCheckEnabled = calculationMethodCheckEnabled;
         }
     }
 }

@@ -46,7 +46,7 @@ namespace UserGroupsCsvToJson
                 {
                     _logger.Error(
                         $"failed to save automation rule settings for price group {automationRule.SettingDto.PriceGroupId}-{automationRule.RawDto.PriceGroupName}," +
-                        $" subsidiary {automationRule.RawDto.SubsidiaryId}, productType: {automationRule.RawDto.ProductTypeId}, buyer: {automationRule.RawDto.Buyer}." +
+                        $" subsidiary {string.Join("|", automationRule.RawDto.Subsidiaries)}, productType: {automationRule.RawDto.ProductTypeId}, buyer: {automationRule.RawDto.Buyer}." +
                         $"  REASON: {result.FailureReason}");
                 }
             }

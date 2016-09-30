@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using CsvHelper;
-
 using log4net;
 
 using PriceGroupWebservice.Dto;
@@ -11,7 +9,7 @@ using PriceGroupWebservice.Dto;
 namespace UserGroupsCsvToJson
 {
     public class PriceGroupsParser
-    {        
+    {
         private readonly ILog _logger;
         private readonly PriceGroupStore _priceGroupStore;
 
@@ -25,7 +23,7 @@ namespace UserGroupsCsvToJson
         {
             var priceGroupList = priceGroups.ToList();
             for(int i = 0;i < priceGroupList.Count;i++)
-            {                
+            {
                 var result = _priceGroupStore.Save(priceGroupList[i]);
                 if(result.Success)
                 {
@@ -46,22 +44,17 @@ namespace UserGroupsCsvToJson
         {
             var userProductsAuth = new List<PriceGroupRawDto>();
 
-            //using ( var streamReader = new StreamReader(filePath))
-            //    using(var csvReader = new CsvReader(streamReader))
-            //    {
-            //        csvReader.GetRecords<PriceGroupRawDto>();
-            //    }            
-            using (var fs = new FileStream(filePath, FileMode.Open))
+            using(var fs = new FileStream(filePath, FileMode.Open))
             {
-                using (var fileReader = new StreamReader(fs))
+                using(var fileReader = new StreamReader(fs))
                 {
-                    if (isFirstLineHeader)
+                    if(isFirstLineHeader)
                         fileReader.ReadLine();
 
-                    while (!fileReader.EndOfStream)
+                    while(!fileReader.EndOfStream)
                     {
                         string line = fileReader.ReadLine();
-                        if (line != null)
+                        if(line != null)
                         {
                             var productIds = line.Split('\t', ',');
                             var priceGroupRawDto = new PriceGroupRawDto();
