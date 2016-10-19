@@ -24,12 +24,22 @@ namespace UserGroupsCsvToJson
         public IEnumerable<PriceGroupDto> Generate(IEnumerable<PriceGroupRawDto> priceGroupsRawDtos)
         {
             var priceGroupRawList = FillProductTypes(priceGroupsRawDtos.ToList());
-            var priceGroups = priceGroupRawList
-                .GroupBy(p => new {p.Name, p.Subsidiaries, ProductTypeId = p.ProductType.Id, p.PriceRuleId})
-                .Select(g =>
+            var groupedPriceGroups = priceGroupRawList
+                .GroupBy(p =>
+                {
+                    if(p.ProductType == null)
+                    {
+                        _logger.Warn($"The product {p.ProductId}-{p.Name} does not have a product type.");
+                        return new { p.Name, ProductTypeId = -1, p.PriceRuleId };
+                    }
+                    return new {p.Name, ProductTypeId = p.ProductType.Id, p.PriceRuleId};
+                });
+
+                var priceGroups = groupedPriceGroups.Select(g =>
                 {
                     string productTypeName = null;
                     PriceRuleDto priceRule = null;
+                    var subsidiaries = g.SelectMany(p => p.Subsidiaries).Distinct();
                     try
                     {
                         productTypeName = _productTypeStore.GetProductTypeName(g.Key.ProductTypeId);
@@ -38,7 +48,7 @@ namespace UserGroupsCsvToJson
                         return new PriceGroupDto
                                {
                                    Name = g.Key.Name,
-                                   Subsidiaries = g.Key.Subsidiaries,
+                                   Subsidiaries = subsidiaries,
                                    Products = g.Select(pg => pg.ProductId).ToList(),
                                    ProductType = new ProductTypeDto
                                                  {
@@ -50,7 +60,7 @@ namespace UserGroupsCsvToJson
                     }
                     catch(Exception ex)
                     {
-                        _logger.Error($"{ex.Message} type: {g.Key.ProductTypeId} {g.Key.Name}, subsidiary {string.Join( "|", g.Key.Subsidiaries)}");
+                        _logger.Error($"{ex.Message} type: {g.Key.ProductTypeId} {g.Key.Name}, subsidiary {string.Join( "|", subsidiaries)}");
                     }
 
                     return null;
@@ -63,14 +73,13 @@ namespace UserGroupsCsvToJson
         {
             var productIds = priceGroupsRawDtos.Select(p => p.ProductId);
             var productTypeProductDtos = _productTypeStore.GetProductTypesFor(productIds);
-
-            foreach(var productTypeProductDto in productTypeProductDtos)
+            
+            foreach (var productTypeProductDto in productTypeProductDtos)
             {
                 var priceGroupRaw = priceGroupsRawDtos.First(pg => pg.ProductId == productTypeProductDto.ProductId);
                 priceGroupRaw.ProductType = productTypeProductDto.ProductType;
+                yield return priceGroupRaw;
             }
-
-            return priceGroupsRawDtos;
         }
     }
 }

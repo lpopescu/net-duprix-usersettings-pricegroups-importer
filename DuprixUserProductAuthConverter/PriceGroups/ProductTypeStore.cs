@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using log4net;
+
 using net_product_webservice.Client.Repositories;
 using net_product_webservice.Dto.ProductHierarchy;
 
@@ -12,12 +14,16 @@ namespace UserGroupsCsvToJson
     public class ProductTypeStore
     {
         private readonly ProductTypeRepository _repository;
+        private readonly ProductHierarchyRepository _productHierarchyRepository;
         private readonly ProductRepository _productRepository;
+        private readonly ILog _logger;
 
-        public ProductTypeStore(ProductTypeRepository repository, ProductRepository productRepository)
+        public ProductTypeStore(ProductTypeRepository repository, ProductHierarchyRepository productHierarchyRepository,  ProductRepository productRepository, ILog logger)
         {
             _repository = repository;
+            _productHierarchyRepository = productHierarchyRepository;
             _productRepository = productRepository;
+            _logger = logger;
         }
 
         public string GetProductTypeName(int id)
@@ -36,11 +42,24 @@ namespace UserGroupsCsvToJson
 
         public IEnumerable<ProductTypeProductRelationDto> GetProductTypesFor(IEnumerable<int> productIds)
         {
-            var result = _productRepository.GetProductHierarchyByIdsAsync(productIds).Result;
-            if (result.Success)
-                return result.Result.Select( ph => new ProductTypeProductRelationDto { ProductId = ph.Product.Id, ProductType = ph.ProductType});
+            var productTypeProductRelations = new List<ProductTypeProductRelationDto>();
 
-            throw new Exception($"Failed to retrieve product hierarchy for {string.Join(",",productIds)}");
+            foreach (int productId in productIds)
+            {
+                var result = _productRepository.GetProductHierarchyByIdAsync(productId).Result;
+                if (result.Success)
+                    productTypeProductRelations.Add(
+                         new ProductTypeProductRelationDto {
+                             ProductType = result.Result.ProductType,
+                             ProductId = result.Result.Product.Id
+                         });
+                else
+                {
+                    _logger.Error($"Failed to retrieve product hierarchy for product {productId}");
+                }
+            }
+             
+            return productTypeProductRelations;
         }
     }
 }

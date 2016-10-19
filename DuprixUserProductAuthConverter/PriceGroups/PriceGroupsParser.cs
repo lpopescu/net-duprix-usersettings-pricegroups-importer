@@ -21,23 +21,25 @@ namespace UserGroupsCsvToJson
 
         public IEnumerable<PriceGroupDto> Upload(IEnumerable<PriceGroupDto> priceGroups)
         {
-            var priceGroupList = priceGroups.ToList();
-            for(int i = 0;i < priceGroupList.Count;i++)
+            var updatedPriceGroups = new List<PriceGroupDto>();
+
+            for(int i = 0;i < priceGroups.Count();i++)
             {
-                var result = _priceGroupStore.Save(priceGroupList[i]);
+                var result = _priceGroupStore.Save(priceGroups.ElementAt(i));
                 if(result.Success)
                 {
-                    priceGroupList[i] = result.Result;
-                    _logger.Info($"saved settings for {priceGroupList[i].Name}");
+                    updatedPriceGroups.Add(result.Result);
+                    _logger.Info($"saved settings for {updatedPriceGroups[i].Name} - {updatedPriceGroups[i].Id}");
                 }
                 else
                 {
+                    var priceGroup = priceGroups.ElementAt(i);
                     _logger.Error(
-                        $"failed to save price group '{priceGroupList[i].Name}' for product type {priceGroupList[i].ProductType.Name} and subsidiary {string.Join("|", priceGroupList[i].Subsidiaries)}.  REASON: {result.FailureReason}");
+                        $"failed to save price group '{priceGroup.Name}' for product type {priceGroup.ProductType.Name} and subsidiary {string.Join("|", priceGroup.Subsidiaries)}.  REASON: {result.FailureReason}");
                 }
             }
 
-            return priceGroupList;
+            return updatedPriceGroups;
         }
 
         public IEnumerable<PriceGroupRawDto> Parse(string filePath, bool isFirstLineHeader)
