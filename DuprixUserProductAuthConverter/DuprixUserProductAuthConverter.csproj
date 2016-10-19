@@ -70,12 +70,12 @@
       <HintPath>..\packages\Unity.4.0.1\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="net-product-webservice.Client, Version=0.1.124.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\net-product-webservice.Client.0.1.124.0\lib\net45\net-product-webservice.Client.dll</HintPath>
+    <Reference Include="net-product-webservice.Client, Version=0.1.128.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\net-product-webservice.Client.0.1.128.0\lib\net45\net-product-webservice.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="net-product-webservice.Dto, Version=0.1.124.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\net-product-webservice.Client.0.1.124.0\lib\net45\net-product-webservice.Dto.dll</HintPath>
+    <Reference Include="net-product-webservice.Dto, Version=0.1.128.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\net-product-webservice.Client.0.1.128.0\lib\net45\net-product-webservice.Dto.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
