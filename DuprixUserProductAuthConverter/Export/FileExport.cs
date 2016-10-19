@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using CsvHelper;
+using CsvHelper.TypeConversion;
 
 using log4net;
 
@@ -34,7 +35,7 @@ namespace UserGroupsCsvToJson
         {
             string outputPath = Path.Combine(directoryName ?? "", fileName);
 
-            using(var textwriter = new StreamWriter(fileName))
+            using(var textwriter = new StreamWriter(outputPath))
             {
                 using(var csvWriter = new CsvWriter(textwriter))
                 {
