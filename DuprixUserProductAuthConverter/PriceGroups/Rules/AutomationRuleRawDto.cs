@@ -47,28 +47,7 @@ namespace UserGroupsCsvToJson.PriceGroups
             int.TryParse(parameters[3], out productTypeId);
             Buyer = parameters[4];
 
-            bool.TryParse(parameters[5], out roundingRules);
-            decimal.TryParse(parameters[6], out minMargin);
-            bool.TryParse(parameters[7], out costPlus);
-
-            bool.TryParse(parameters[8], out minSalesMarginEnabled);
-            decimal.TryParse(parameters[9], out minSalesMargin);
-
-            bool.TryParse(parameters[10], out maxPriceIncreaseEnabled);
-            decimal.TryParse(parameters[11], out maxPriceIncrease);
-
-            bool.TryParse(parameters[12], out maxPriceDecreaseEnabled);
-            decimal.TryParse(parameters[13], out maxPriceDecrease);
-
-            bool.TryParse(parameters[14], out maxTopWeightedSalesEnabled);
-            decimal.TryParse(parameters[15], out maxTopWeightedSales);
-
-            bool.TryParse(parameters[16], out maxPriceIndexEnabled);
-            decimal.TryParse(parameters[17], out maxPriceIndex);
-
-            bool.TryParse(parameters[18], out calculationMethodCheckEnabled);
-
-            var splits = parameters[19].Split('|');
+            var splits = parameters[5].Split('|');
             foreach (string s in splits)
             {
                 int subsidiaryId;
@@ -77,6 +56,28 @@ namespace UserGroupsCsvToJson.PriceGroups
                     subsidiaryList.Add(subsidiaryId);
                 }
             }
+
+            bool.TryParse(parameters[6], out roundingRules);
+            decimal.TryParse(parameters[7], out minMargin);
+            bool.TryParse(parameters[8], out costPlus);
+
+            bool.TryParse(parameters[9], out minSalesMarginEnabled);
+            decimal.TryParse(parameters[10], out minSalesMargin);
+
+            bool.TryParse(parameters[11], out maxPriceIncreaseEnabled);
+            decimal.TryParse(parameters[12], out maxPriceIncrease);
+
+            bool.TryParse(parameters[13], out maxPriceDecreaseEnabled);
+            decimal.TryParse(parameters[14], out maxPriceDecrease);
+
+            bool.TryParse(parameters[15], out maxTopWeightedSalesEnabled);
+            decimal.TryParse(parameters[16], out maxTopWeightedSales);
+
+            bool.TryParse(parameters[17], out maxPriceIndexEnabled);
+            decimal.TryParse(parameters[18], out maxPriceIndex);
+
+            bool.TryParse(parameters[19], out calculationMethodCheckEnabled);
+
             PriceRuleId = priceRuleId;
             PriceGroupId = priceGroupId;
             Subsidiaries = subsidiaryList;

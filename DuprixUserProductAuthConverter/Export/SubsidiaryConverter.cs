@@ -15,7 +15,7 @@ namespace UserGroupsCsvToJson
 
         public object ConvertFromString(TypeConverterOptions options, string text)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public bool CanConvertTo(Type type)
@@ -25,7 +25,7 @@ namespace UserGroupsCsvToJson
 
         public bool CanConvertFrom(Type type)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }
