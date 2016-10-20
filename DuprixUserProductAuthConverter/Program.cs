@@ -262,7 +262,7 @@ namespace UserGroupsCsvToJson
             Console.WriteLine("uploading price groups");
             var updatedPriceGroups = priceGroupsParser.Upload(priceGroups);
 
-            var priceGroupRulesTemplate = mapper.Map<IEnumerable<PriceGroupRuleDto>>(updatedPriceGroups)
+            var priceGroupRulesTemplate = mapper.Map<IEnumerable<AutomationRuleRawDto>>(updatedPriceGroups)
                 .ToList();
             foreach (var pg in priceGroupRulesTemplate)
             {

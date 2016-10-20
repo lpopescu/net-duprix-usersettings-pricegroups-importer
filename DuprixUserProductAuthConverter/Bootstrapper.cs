@@ -56,7 +56,7 @@ namespace UserGroupsCsvToJson
 
             var mapperConfiguration = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<PriceGroupDto, PriceGroupRuleDto>()
+                cfg.CreateMap<PriceGroupDto, AutomationRuleRawDto>()
                    .ForMember(dst => dst.PriceGroupId,
                        opt => opt.MapFrom(src => src.Id))
                    .ForMember(dst => dst.PriceGroupName,
