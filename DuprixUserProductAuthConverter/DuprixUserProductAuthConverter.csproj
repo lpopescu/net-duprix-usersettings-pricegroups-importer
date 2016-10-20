@@ -82,12 +82,12 @@
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PriceGroupWebservice.Client, Version=0.1.36.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PriceGroupWebService.Client.0.1.36.0\lib\net45\PriceGroupWebservice.Client.dll</HintPath>
+    <Reference Include="PriceGroupWebservice.Client, Version=0.1.40.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PriceGroupWebService.Client.0.1.40.0\lib\net45\PriceGroupWebservice.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PriceGroupWebservice.Dto, Version=0.1.36.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PriceGroupWebService.Client.0.1.36.0\lib\net45\PriceGroupWebservice.Dto.dll</HintPath>
+    <Reference Include="PriceGroupWebservice.Dto, Version=0.1.40.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PriceGroupWebService.Client.0.1.40.0\lib\net45\PriceGroupWebservice.Dto.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">

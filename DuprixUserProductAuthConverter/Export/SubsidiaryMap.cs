@@ -17,15 +17,10 @@ namespace UserGroupsCsvToJson
             Map(m => m.RoundingRules);
             Map(m => m.MinimumMargin);
             Map(m => m.CostPlus);
-            Map(m => m.MinSalesMarginEnabled);
             Map(m => m.MinSalesMargin);
-            Map(m => m.MaxPriceIncreaseEnabled);
             Map(m => m.MaxPriceIncrease);
-            Map(m => m.MaxPriceDecreaseEnabled);
             Map(m => m.MaxPriceDecrease);
-            Map(m => m.MaxTopWeightedSalesEnabled);
             Map(m => m.MaxTopWeightedSales);
-            Map(m => m.MaxPriceIndexEnabled);
             Map(m => m.MaxPriceIndex);
             Map(m => m.CalculationMethodCheckEnabled);
         }

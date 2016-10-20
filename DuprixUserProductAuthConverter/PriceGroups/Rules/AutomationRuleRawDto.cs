@@ -14,15 +14,10 @@ namespace UserGroupsCsvToJson.PriceGroups
         public decimal MinimumMargin { get; set; }
         public bool CostPlus { get; set; }
 
-        public bool MinSalesMarginEnabled { get; set; }
         public decimal MinSalesMargin { get; set; }
-        public bool MaxPriceIncreaseEnabled { get; set; }
         public decimal MaxPriceIncrease { get; set; }
-        public bool MaxPriceDecreaseEnabled { get; set; }
         public decimal MaxPriceDecrease { get; set; }
-        public bool MaxTopWeightedSalesEnabled { get; set; }
         public decimal MaxTopWeightedSales { get; set; }
-        public bool MaxPriceIndexEnabled { get; set; }
         public decimal MaxPriceIndex { get; set; }
         public bool CalculationMethodCheckEnabled { get; set; }
 
@@ -38,8 +33,7 @@ namespace UserGroupsCsvToJson.PriceGroups
             decimal maxPriceDecrease;
             decimal maxTopWeightedSales;
             decimal maxPriceIndex;
-            bool calculationMethodCheckEnabled, roundingRules, costPlus, minSalesMarginEnabled, maxPriceIncreaseEnabled
-                , maxPriceDecreaseEnabled, maxTopWeightedSalesEnabled, maxPriceIndexEnabled;
+            bool calculationMethodCheckEnabled, roundingRules, costPlus;
 
             int.TryParse(parameters[0], out priceGroupId);
             PriceGroupName = parameters[1];
@@ -61,22 +55,13 @@ namespace UserGroupsCsvToJson.PriceGroups
             decimal.TryParse(parameters[7], out minMargin);
             bool.TryParse(parameters[8], out costPlus);
 
-            bool.TryParse(parameters[9], out minSalesMarginEnabled);
-            decimal.TryParse(parameters[10], out minSalesMargin);
+            decimal.TryParse(parameters[9], out minSalesMargin);
+            decimal.TryParse(parameters[10], out maxPriceIncrease);
+            decimal.TryParse(parameters[11], out maxPriceDecrease);
+            decimal.TryParse(parameters[12], out maxTopWeightedSales);
+            decimal.TryParse(parameters[13], out maxPriceIndex);
 
-            bool.TryParse(parameters[11], out maxPriceIncreaseEnabled);
-            decimal.TryParse(parameters[12], out maxPriceIncrease);
-
-            bool.TryParse(parameters[13], out maxPriceDecreaseEnabled);
-            decimal.TryParse(parameters[14], out maxPriceDecrease);
-
-            bool.TryParse(parameters[15], out maxTopWeightedSalesEnabled);
-            decimal.TryParse(parameters[16], out maxTopWeightedSales);
-
-            bool.TryParse(parameters[17], out maxPriceIndexEnabled);
-            decimal.TryParse(parameters[18], out maxPriceIndex);
-
-            bool.TryParse(parameters[19], out calculationMethodCheckEnabled);
+            bool.TryParse(parameters[14], out calculationMethodCheckEnabled);
 
             PriceRuleId = priceRuleId;
             PriceGroupId = priceGroupId;
@@ -87,17 +72,12 @@ namespace UserGroupsCsvToJson.PriceGroups
             CostPlus = costPlus;
             MinimumMargin = minMargin;
 
-            MinSalesMarginEnabled = minSalesMarginEnabled;
-            MaxPriceIndexEnabled = maxPriceIndexEnabled;
-            MaxPriceIncreaseEnabled = maxPriceIncreaseEnabled;
-            MaxPriceDecreaseEnabled = maxPriceDecreaseEnabled;
-            MaxTopWeightedSalesEnabled = maxTopWeightedSalesEnabled;
-
             MinSalesMargin = minSalesMargin;
             MaxPriceIncrease = maxPriceIncrease;
             MaxPriceDecrease = maxPriceDecrease;
             MaxTopWeightedSales = maxTopWeightedSales;
             MaxPriceIndex = maxPriceIndex;
+            
             CalculationMethodCheckEnabled = calculationMethodCheckEnabled;
         }
     }

@@ -1,0 +1,22 @@
+[
+  {
+    "Id": 0,
+    "PriceGroupId": 6721,
+    "IsPriceRuleCheckEnabled": true,
+    "MinimumSalesMarginPercentage": 0.05,
+    "MaximumPositivePriceDifferencePercentage": 0.25,
+    "MaximumNegativePriceDifferencePercentage": 0.35,
+    "MaximumPriceIndex": 120.0,
+    "MaximumToppedWeightedSales": 10.0
+  },
+  {
+    "Id": 0,
+    "PriceGroupId": 6722,
+    "IsPriceRuleCheckEnabled": false,
+    "MinimumSalesMarginPercentage": 0.05,
+    "MaximumPositivePriceDifferencePercentage": 0.25,
+    "MaximumNegativePriceDifferencePercentage": 0.35,
+    "MaximumPriceIndex": 120.0,
+    "MaximumToppedWeightedSales": 10.0
+  }
+]
