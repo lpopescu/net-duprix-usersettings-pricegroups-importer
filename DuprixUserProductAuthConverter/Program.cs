@@ -189,12 +189,6 @@ namespace UserGroupsCsvToJson
 
             foreach(var automationRule in userAutomationRules)
             {
-                automationRule.IsMaximumNegativePriceDifferencePercentageRuleEnabled = true;
-                automationRule.IsMaximumPositivePriceDifferencePercentageRuleEnabled = true;
-                automationRule.IsMaximumToppedWeightedSalesRuleEnabled = true;
-                automationRule.IsMaximumPriceIndexRuleEnabled = true;
-                automationRule.IsMinimumSalesMarginPercentageRuleEnabled = true;
-
                 var result = automationRuleStore.UpdateAsync(automationRule).Result;
                 if(result.Success)
                     logger.Info($"Updated automation rule {automationRule.Id} for price group {automationRule.PriceGroupId}");
