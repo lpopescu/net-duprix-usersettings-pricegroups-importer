@@ -122,7 +122,6 @@
     <Compile Include="PriceGroups\Rules\AutomationRuleStore.cs" />
     <Compile Include="PriceGroups\PriceGroupGenerator.cs" />
     <Compile Include="PriceGroups\PriceGroupRawDto.cs" />
-    <Compile Include="Export\PriceGroupRuleDto.cs" />
     <Compile Include="PriceGroups\PriceGroupsParser.cs" />
     <Compile Include="PriceGroups\PriceGroupStore.cs" />
     <Compile Include="PriceGroups\Rules\AutomationRuleRawDto.cs" />
