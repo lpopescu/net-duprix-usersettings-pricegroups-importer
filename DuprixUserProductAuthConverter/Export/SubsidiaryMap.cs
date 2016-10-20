@@ -1,8 +1,10 @@
 using CsvHelper.Configuration;
 
+using UserGroupsCsvToJson.PriceGroups;
+
 namespace UserGroupsCsvToJson
 {
-    public class SubsidiaryMap : CsvClassMap<PriceGroupRuleDto>
+    public class SubsidiaryMap : CsvClassMap<AutomationRuleRawDto>
     {
         public SubsidiaryMap()
         {
