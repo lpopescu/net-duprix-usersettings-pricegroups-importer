@@ -143,7 +143,9 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Sample\productTypes.csv" />
+    <None Include="Sample\new_price_groups_rule_template_TestPrinters.csv" />
+    <None Include="Sample\price_groups_template_testPrinters.csv" />
+    <None Include="Sample\user_setting_template_test_M.gesink_Printers.csv" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
