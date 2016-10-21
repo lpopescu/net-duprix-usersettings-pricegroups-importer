@@ -62,9 +62,9 @@ namespace UserGroupsCsvToJson
 
                 DeleteAllPriceGroupsExceptCommand(container, userNames);
             }
-            else if(parameter == "-upar")
+            else if(parameter == "-expar")
             {
-                UpdateAutomationRuleFlagsCommand(args, container);
+                ExportAutomationRulesCommand(args, container);
             }
             else if(parameter == "-purr")
             {             
@@ -171,7 +171,7 @@ namespace UserGroupsCsvToJson
             }         
         }
 
-        private static void UpdateAutomationRuleFlagsCommand(string[] args, UnityContainer container)
+        private static void ExportAutomationRulesCommand(string[] args, UnityContainer container)
         {
             var logger = container.Resolve<ILog>();
             if(args[1] == null)
@@ -180,19 +180,38 @@ namespace UserGroupsCsvToJson
                 return;
             }
 
-            var automationRuleStore = container.Resolve<AutomationRuleStore>();
-            var priceGroupStore = container.Resolve<PriceGroupStore>();
+            if (args[2] == null)
+            {
+                PrintParametersUsage("The export path was not specified.");
+                return;
+            }
 
+            var automationRuleStore = container.Resolve<AutomationRuleStore>();
+            var priceGroupStore = container.Resolve<PriceGroupStore>();            
+            var mapper = container.Resolve<IMapper>();
+            var fileExporter = container.Resolve<FileExport>();
+
+            string exportpath = args[2];
             string userName = args[1];
             var userPriceGroups = priceGroupStore.GetAllFor(userName);
             var userAutomationRules = automationRuleStore.GetAll(userPriceGroups);
+            var list = new List<AutomationRuleRawDto>();
 
             foreach(var automationRule in userAutomationRules)
             {
-                var result = automationRuleStore.UpdateAsync(automationRule).Result;
-                if(result.Success)
-                    logger.Info($"Updated automation rule {automationRule.Id} for price group {automationRule.PriceGroupId}");
+                var automationRuleRawDto = mapper.Map<AutomationRuleRawDto>(automationRule);
+                var priceGroup = userPriceGroups.First(pg => pg.Id == automationRule.PriceGroupId);
+                automationRuleRawDto.Subsidiaries = priceGroup.Subsidiaries;
+                automationRuleRawDto.Buyer = userName;
+                automationRuleRawDto.PriceGroupName = priceGroup.Name;
+                automationRuleRawDto.CostPlus= priceGroup.CostPlus;
+                automationRuleRawDto.RoundingRules= priceGroup.RoundingRules;
+                automationRuleRawDto.PriceRuleId = priceGroup.PriceRule.Id;
+                automationRuleRawDto.MinimumMargin = (decimal)priceGroup.MinimumMargin;
+                list.Add(automationRuleRawDto);
             }
+            fileExporter.ExportToCsv(list, exportpath, "automation_rules_export.csv");
+            logger.Info($"Exported automation rules");
         }
 
         private static void ImportAutomationRulesCommand(UnityContainer container, string filePath, bool isFirstLineHeader, FileInfo fileInfo)

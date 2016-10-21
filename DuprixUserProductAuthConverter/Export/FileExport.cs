@@ -39,6 +39,7 @@ namespace UserGroupsCsvToJson
             {
                 using(var csvWriter = new CsvWriter(textwriter))
                 {
+                    csvWriter.Configuration.QuoteNoFields = true;
                     csvWriter.Configuration.RegisterClassMap<SubsidiaryMap>();
                     csvWriter.WriteHeader<T>();
 

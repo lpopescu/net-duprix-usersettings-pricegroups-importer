@@ -66,6 +66,18 @@ namespace UserGroupsCsvToJson
                        .ForMember(dst => dst.ProductTypeId,
                        opt => opt.MapFrom(src => src.ProductType.Id));
 
+                cfg.CreateMap<AutomationRuleSettingDto, AutomationRuleRawDto>()
+                   .ForMember(dst => dst.CalculationMethodCheckEnabled,
+                       opt => opt.MapFrom(src => src.IsPriceRuleCheckEnabled))
+                   .ForMember(dst => dst.MaxPriceDecrease,
+                       opt => opt.MapFrom(src => src.MaximumNegativePriceDifferencePercentage))
+                   .ForMember(dst => dst.MaxPriceIncrease,
+                       opt => opt.MapFrom(src => src.MaximumPositivePriceDifferencePercentage))
+                   .ForMember(dst => dst.MaxPriceIndex, opt => opt.MapFrom(src => src.MaximumPriceIndex))
+                   .ForMember(dst => dst.MaxTopWeightedSales, opt => opt.MapFrom(src => src.MaximumToppedWeightedSales))
+                .ForMember(dst => dst.MinSalesMargin, opt => opt.MapFrom(src => src.MinimumSalesMarginPercentage))
+                .ForMember(dst => dst.PriceGroupId, opt => opt.MapFrom(src => src.PriceGroupId));
+
                 cfg.CreateMap<AutomationRuleRawDto, AutomationRuleSettingDto>()
                    .ForMember(dst => dst.IsPriceRuleCheckEnabled,
                        opt => opt.MapFrom(src => src.CalculationMethodCheckEnabled))
@@ -75,6 +87,7 @@ namespace UserGroupsCsvToJson
                        opt => opt.MapFrom(src => src.MaxPriceIncrease))
                    .ForMember(dst => dst.MaximumPriceIndex, opt => opt.MapFrom(src => src.MaxPriceIndex))
                    .ForMember(dst => dst.MaximumToppedWeightedSales, opt => opt.MapFrom(src => src.MaxTopWeightedSales))
+
                    .ForMember(dst => dst.MinimumSalesMarginPercentage, opt => opt.MapFrom(src => src.MinSalesMargin))
 
                    .ForMember(dst => dst.PriceGroupId, opt => opt.MapFrom(src => src.PriceGroupId));
