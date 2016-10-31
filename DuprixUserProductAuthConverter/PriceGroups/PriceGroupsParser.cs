@@ -2,7 +2,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+using CsvHelper;
+
 using log4net;
+
+using Microsoft.Practices.ObjectBuilder2;
 
 using PriceGroupWebservice.Dto;
 
@@ -23,13 +27,16 @@ namespace UserGroupsCsvToJson
         {
             var updatedPriceGroups = new List<PriceGroupDto>();
 
-            for(int i = 0;i < priceGroups.Count();i++)
-            {
+            CheckForPriceGroupsWithSameProduct(priceGroups);
+
+            for (int i = 0;i < priceGroups.Count();i++)
+            {                
                 var result = _priceGroupStore.Save(priceGroups.ElementAt(i));
                 if(result.Success)
                 {
-                    updatedPriceGroups.Add(result.Result);
-                    _logger.Info($"saved settings for {updatedPriceGroups[i].Name} - {updatedPriceGroups[i].Id}");
+                    var newPriceGroup = result.Result;
+                    updatedPriceGroups.Add(newPriceGroup);
+                    _logger.Info($"saved settings for {newPriceGroup.Name} - {newPriceGroup.Id}");
                 }
                 else
                 {
@@ -42,32 +49,53 @@ namespace UserGroupsCsvToJson
             return updatedPriceGroups;
         }
 
-        public IEnumerable<PriceGroupRawDto> Parse(string filePath, bool isFirstLineHeader)
+        private void CheckForPriceGroupsWithSameProduct(IEnumerable<PriceGroupDto> priceGroups)
         {
-            var userProductsAuth = new List<PriceGroupRawDto>();
+            var priceGroupResult = _priceGroupStore.GetAll();
+            if(!priceGroupResult.Success)
+                _logger.Warn("Could not retrieve price groups to check inconsistencies");
+            else
+            {
+                var existingPriceGroups = priceGroupResult.Result;
+                foreach(var existingPriceGroup in existingPriceGroups)
+                {
+                    priceGroups.ForEach(pg =>
+                    {
+                        IEnumerable<int> repeatedProducts = existingPriceGroup.Products.Where(p => pg.Products.Contains(p));
+                        if(repeatedProducts.Any())
+                        {
+                            _logger.Warn(
+                                $"The price groups {pg.Id} - {pg.Name} and {existingPriceGroup.Id} - {existingPriceGroup.Name} contain same products" +
+                                $" {string.Join(",", repeatedProducts)}");
+                        }
+                    });
+                }
+            }
+        }
 
+        public IEnumerable<PriceGroupRawDto> Parse(string filePath, string[] priceGroupsToFilter)
+        {
+            var priceGroupRawDtos = new List<PriceGroupRawDto>();
+            
             using(var fs = new FileStream(filePath, FileMode.Open))
             {
                 using(var fileReader = new StreamReader(fs))
                 {
-                    if(isFirstLineHeader)
-                        fileReader.ReadLine();
-
-                    while(!fileReader.EndOfStream)
+                    var csvReader = new CsvReader(fileReader);
+                    while(csvReader.Read())
                     {
-                        string line = fileReader.ReadLine();
-                        if(line != null)
-                        {
-                            var productIds = line.Split('\t', ',');
-                            var priceGroupRawDto = new PriceGroupRawDto();
-
-                            priceGroupRawDto.Parse(productIds);
-                            userProductsAuth.Add(priceGroupRawDto);
-                        }
-                    }
+                        var priceGroupRawDto = new PriceGroupRawDto();
+                        
+                        priceGroupRawDto.Parse(csvReader);
+                        priceGroupRawDtos.Add(priceGroupRawDto);
+                    }                    
                 }
             }
-            return userProductsAuth;
+            if(priceGroupsToFilter.Any())
+            {                
+                priceGroupRawDtos = priceGroupRawDtos.Where(p => priceGroupsToFilter.Contains(p.Name)).ToList();
+            }
+            return priceGroupRawDtos;
         }
     }
 }

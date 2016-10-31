@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-
+﻿using System;
+using System.Collections.Generic;
+using CsvHelper;
 using net_product_webservice.Dto.ProductHierarchy;
 
 namespace UserGroupsCsvToJson
@@ -12,30 +13,24 @@ namespace UserGroupsCsvToJson
         public int PriceRuleId { get; set; }
         public int ProductId { get; set; }
 
-        public void Parse(string[] idStrings)
-        {
-            int priceRuleId;
-            int productId;
+        internal void Parse(CsvReader csvReader)
+        {            
             List<int> subsidiaryList = new List<int>();
 
-            Name = idStrings[0];
-
-            var splits = idStrings[1].Split('|');
-            foreach(string s in splits)
+            Name = csvReader.GetField(0);
+            var splits = csvReader.GetField(1).Split('|');
+            foreach (string s in splits)
             {
                 int subsidiaryId;
-                if(int.TryParse(s, out subsidiaryId))
+                if (int.TryParse(s, out subsidiaryId))
                 {
                     subsidiaryList.Add(subsidiaryId);
                 }
             }
 
             Subsidiaries = subsidiaryList;
-            int.TryParse(idStrings[2], out priceRuleId);
-            int.TryParse(idStrings[3], out productId);
-
-            PriceRuleId = priceRuleId;            
-            ProductId = productId;
+            PriceRuleId = csvReader.GetField<int>(2);
+            ProductId = csvReader.GetField<int>(3);
         }
     }
 }

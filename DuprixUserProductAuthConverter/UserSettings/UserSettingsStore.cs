@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +7,8 @@ using ApplicationSettingsWebservice.Dto.Duprix;
 
 using log4net;
 
+using MoreLinq;
+
 using WebserviceClientToolkit.ClientRepositories;
 
 namespace UserGroupsCsvToJson
@@ -13,9 +16,9 @@ namespace UserGroupsCsvToJson
     public class UserSettingsStore
     {
         private readonly ILog _logger;
-        private readonly DuprixSettingsRepository _repository;
+        private readonly IDuprixSettingsRepository _repository;
 
-        public UserSettingsStore(DuprixSettingsRepository repository, ILog logger)
+        public UserSettingsStore(IDuprixSettingsRepository repository, ILog logger)
         {
             _repository = repository;
             _logger = logger;
@@ -41,13 +44,15 @@ namespace UserGroupsCsvToJson
             {
                 userSettings = repositoryResult.Result
                                                .Where(s => s.UserGroups.Exists(u => u.ProductTypeId == productTypeId));
+                
+                var usersWithSameProductTypeSubsidiary = GetUsersWithSameProductTypeAndSubsidiary(repositoryResult.Result, productTypeId);
 
-                if(userSettings.Count() > 1)
+                if (usersWithSameProductTypeSubsidiary.Any())
                 {
                     string userNames = string.Join("|", userSettings.Select(u => u.UserName));
                     _logger.Warn(
                         $"More than one user was found with product type id {productTypeId}. Users: {userNames}");
-                }
+                }                
             }
             else if(repositoryResult.FailureReason == RepositoryFailureReason.ResourceNotFound)
                 _logger.Error($"No user was found with product type id {productTypeId}");
@@ -55,6 +60,28 @@ namespace UserGroupsCsvToJson
                 _logger.Error($"There was an internal server error.");
 
             return userSettings;
+        }
+
+        private IEnumerable<DuprixSettingsDto> GetUsersWithSameProductTypeAndSubsidiary(IEnumerable<DuprixSettingsDto> userSettings, int productTypeId)
+        {
+            List<DuprixSettingsDto> list = new List<DuprixSettingsDto>();
+            foreach (var setting in userSettings)
+            {
+                var userGroups = setting.UserGroups.Where(u => u.ProductTypeId == productTypeId).ToList();
+                userGroups.ForEach(ug =>
+                {
+                    var users = userSettings.Where(u => u.UserName != setting.UserName);
+                    IEnumerable<DuprixSettingsDto> exists = users.Where(u =>
+                                        u.UserGroups.Exists(
+                                            usg =>
+                                                usg.ProductTypeId == ug.ProductTypeId &&
+                                                usg.SubsidiaryId == ug.SubsidiaryId));
+
+
+                    list.AddRange(exists.Except(list));
+                });
+            };
+            return list;
         }
     }
 }
