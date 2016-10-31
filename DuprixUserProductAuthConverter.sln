@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DuprixUserProductAuthConverter", "DuprixUserProductAuthConverter\DuprixUserProductAuthConverter.csproj", "{70EED8AC-6F11-4E1E-9874-FCCBCD7F8C9F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DuprixUserProductAuthConverterTests", "DuprixUserProductAuthConverterTests\DuprixUserProductAuthConverterTests.csproj", "{42E41252-12D9-447A-A8D3-94F5639AA146}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{70EED8AC-6F11-4E1E-9874-FCCBCD7F8C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70EED8AC-6F11-4E1E-9874-FCCBCD7F8C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70EED8AC-6F11-4E1E-9874-FCCBCD7F8C9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42E41252-12D9-447A-A8D3-94F5639AA146}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42E41252-12D9-447A-A8D3-94F5639AA146}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42E41252-12D9-447A-A8D3-94F5639AA146}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42E41252-12D9-447A-A8D3-94F5639AA146}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
