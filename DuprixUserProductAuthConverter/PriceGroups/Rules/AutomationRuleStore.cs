@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using log4net;
+
 using PriceGroupWebservice.Client;
 using PriceGroupWebservice.Dto;
 
@@ -11,10 +13,12 @@ namespace UserGroupsCsvToJson.PriceGroups
 {
     public class AutomationRuleStore
     {
+        private readonly ILog _logger;
         private readonly IAutomationRuleSettingRepository _automationRuleRepository;        
 
-        public AutomationRuleStore(IAutomationRuleSettingRepository automationRuleRepository)
+        public AutomationRuleStore(IAutomationRuleSettingRepository automationRuleRepository, ILog logger)
         {
+            _logger = logger;
             _automationRuleRepository = automationRuleRepository;
         }
 
@@ -26,6 +30,26 @@ namespace UserGroupsCsvToJson.PriceGroups
         public async Task<RepositoryResult<AutomationRuleSettingDto>> UpdateAsync(AutomationRuleSettingDto automationRule)
         {
             return await _automationRuleRepository.PutAsync(automationRule);
+        }
+
+        public async Task<RepositoryResult<DefaultAutomationRuleSettingDto>> GetDefaultRules()
+        {
+            return await _automationRuleRepository.GetDefaultSettingsAsync();
+        }
+
+        public IEnumerable<AutomationRuleSettingDto> GetAll()
+        {
+            var userAutomationRules = Enumerable.Empty<AutomationRuleSettingDto>();
+            var repositoryResult = _automationRuleRepository.GetAllAsync().Result;
+            if(repositoryResult.Success)
+            {
+                userAutomationRules = repositoryResult.Result;
+            }
+            else
+            {
+                _logger.Error($"Retrieval of automation rules failed. {repositoryResult.HttpStatusCode} - {repositoryResult.FailureReason}");
+            }
+            return userAutomationRules;
         }
 
         public IEnumerable<AutomationRuleSettingDto> GetAll(IEnumerable<PriceGroupDto> priceGroups)
