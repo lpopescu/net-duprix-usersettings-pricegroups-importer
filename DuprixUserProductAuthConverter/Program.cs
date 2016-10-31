@@ -208,6 +208,7 @@ namespace UserGroupsCsvToJson
             {
                 var automationRuleRawDto = mapper.Map<AutomationRuleRawDto>(automationRule);
                 var priceGroup = userPriceGroups.First(pg => pg.Id == automationRule.PriceGroupId);
+                automationRuleRawDto.ProductTypeId = priceGroup.ProductType.Id;
 
                 SetAutomationRuleMembers(automationRuleRawDto, priceGroup, userName);
                 

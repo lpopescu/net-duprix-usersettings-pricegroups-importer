@@ -74,7 +74,7 @@ namespace UserGroupsCsvToJson
                    .ForMember(dst => dst.MaxPriceIncrease,
                        opt => opt.MapFrom(src => src.MaximumPositivePriceDifferencePercentage))
                    .ForMember(dst => dst.MaxPriceIndex, opt => opt.MapFrom(src => src.MaximumPriceIndex))
-                   .ForMember(dst => dst.MaxTopWeightedSales, opt => opt.MapFrom(src => src.MaximumToppedWeightedSales))
+                   .ForMember(dst => dst.MaxTopWeightedSales, opt => opt.MapFrom(src => src.MaximumToppedWeightedSales))                   
                 .ForMember(dst => dst.MinSalesMargin, opt => opt.MapFrom(src => src.MinimumSalesMarginPercentage));
 
                 cfg.CreateMap<AutomationRuleSettingDto, AutomationRuleRawDto>()
