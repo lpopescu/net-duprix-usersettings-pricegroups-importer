@@ -40,7 +40,6 @@ namespace UserGroupsCsvToJson
             {
                 using(var csvWriter = new CsvWriter(textwriter))
                 {
-                    csvWriter.Configuration.QuoteNoFields = true;
                     csvWriter.Configuration.CultureInfo= CultureInfo.GetCultureInfo("en-GB");
                     csvWriter.Configuration.RegisterClassMap<SubsidiaryMap>();
                     csvWriter.WriteHeader<T>();
