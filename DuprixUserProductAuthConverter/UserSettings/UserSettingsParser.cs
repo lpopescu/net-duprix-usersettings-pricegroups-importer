@@ -1,9 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 using ApplicationSettingsWebservice.Dto.Duprix;
+
+using log4net;
 
 using Newtonsoft.Json;
 
@@ -11,38 +12,41 @@ namespace UserGroupsCsvToJson
 {
     public class UserSettingsParser
     {
-        private readonly UserSettingsStore _userSettingsStore;        
-        private const string JSON_OUTPUT_FILE_NAME = "output.json";
+        private const string JSON_OUTPUT_FILE_NAME = "user_settings";
+        private const string EXTENSION = ".json";
+        private readonly ILog _logger;
+        private readonly UserSettingsStore _userSettingsStore;
 
-        public UserSettingsParser(UserSettingsStore userSettingsStore)
+        public UserSettingsParser(UserSettingsStore userSettingsStore, ILog logger)
         {
             _userSettingsStore = userSettingsStore;
+            _logger = logger;
         }
 
-        public void Export(IEnumerable<DuprixSettingsDto> userSettingsList, string directoryName )
+        public void Export(IEnumerable<DuprixSettingsDto> userSettingsList, string directoryName)
         {
             string jsonOutput = JsonConvert.SerializeObject(userSettingsList, Formatting.Indented);
-            string outputPath = Path.Combine(directoryName ?? "", JSON_OUTPUT_FILE_NAME);
+            string userName = userSettingsList.Count() > 1 ? userSettingsList.First().UserName : "";
 
-            using (var fs = File.CreateText(outputPath))
+            var fileName = $"{JSON_OUTPUT_FILE_NAME}_{userName}{EXTENSION}";
+            string outputPath = Path.Combine(directoryName ?? "", fileName);
+
+            using(var fs = File.CreateText(outputPath))
                 fs.Write(jsonOutput);
 
-            Console.WriteLine("File was successfully parsed. Output: {0}", outputPath);
-
-            string sampleJsonOutput = JsonConvert.SerializeObject(userSettingsList.Take(2), Formatting.Indented);
-            Console.WriteLine("Output sample: {0}", sampleJsonOutput);  
+            _logger.Info($"File was successfully parsed. Output: {outputPath}");
         }
 
         public void UploadSettings(IEnumerable<DuprixSettingsDto> userSettingsList)
         {
-            foreach (var userSettings in userSettingsList)
+            foreach(var userSettings in userSettingsList)
             {
                 var result = _userSettingsStore.Update(userSettings);
-                if (result.Success)
-                    Console.WriteLine($"saved settings for {userSettings.UserName}");
+                if(result.Success)
+                    _logger.Info($"Saved settings for {userSettings.UserName}");
                 else
                 {
-                    Console.WriteLine(
+                    _logger.Info(
                         $"failed to save settings for {userSettings.UserName}.  REASON: {result.FailureReason}");
                 }
             }
@@ -52,17 +56,17 @@ namespace UserGroupsCsvToJson
         {
             var userProductsAuth = new List<UserSettingsRawDto>();
 
-            using (var fs = new FileStream(filePath, FileMode.Open))
+            using(var fs = new FileStream(filePath, FileMode.Open))
             {
-                using (var fileReader = new StreamReader(fs))
+                using(var fileReader = new StreamReader(fs))
                 {
-                    if (isFirstLineHeader)
+                    if(isFirstLineHeader)
                         fileReader.ReadLine();
 
-                    while (!fileReader.EndOfStream)
+                    while(!fileReader.EndOfStream)
                     {
                         string line = fileReader.ReadLine();
-                        if (line != null)
+                        if(line != null)
                         {
                             var productIds = line.Split('\t', ',');
                             var userProductAuth = new UserSettingsRawDto();
