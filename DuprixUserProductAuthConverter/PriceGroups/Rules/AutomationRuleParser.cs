@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using CsvHelper;
+
 using log4net;
 
 using Newtonsoft.Json;
@@ -60,19 +62,12 @@ namespace UserGroupsCsvToJson
             {
                 using(var fileReader = new StreamReader(fs))
                 {
-                    if(isFirstLineHeader)
-                        fileReader.ReadLine();
-
-                    while(!fileReader.EndOfStream)
+                    var csvReader = new CsvReader(fileReader);
+                    while(csvReader.Read())
                     {
-                        string line = fileReader.ReadLine();
-                        if(line != null)
-                        {
-                            var productIds = line.Split('\t', ',');
-                            var automationRuleRawDto = new AutomationRuleRawDto();
-                            automationRuleRawDto.Parse(productIds);
-                            ruleRawDtos.Add(automationRuleRawDto);
-                        }
+                        var automationRuleRawDto = new AutomationRuleRawDto();
+                        automationRuleRawDto.Parse(csvReader);
+                        ruleRawDtos.Add(automationRuleRawDto);
                     }
                 }
             }
