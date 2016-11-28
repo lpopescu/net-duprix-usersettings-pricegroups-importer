@@ -62,6 +62,18 @@ namespace UserGroupsCsvToJson
 
                 DeleteAllPriceGroupsExceptCommand(container, userNames);
             }
+            else if(parameter == "-upcr")
+            {
+                if (args[1] == null)
+                {
+                    PrintParametersUsage("The user name comma separated list was not specified.");
+                    return;
+                }
+                string userNamesCsv = args[1];
+                string[] userNames = userNamesCsv.Split(',');
+
+                UpdateUserPriceGroupsCommand(container, userNames);
+            }                
             else if(parameter == "-expar")
                 ExportAutomationRulesCommand(args, container);
             else if(parameter == "-purr")
@@ -86,8 +98,10 @@ namespace UserGroupsCsvToJson
                     ImportUserSettingsCommand(container, filePath, isFirstLineHeader, fileInfo);
                 else if(parameter == "-p")
                 {
-                    string priceGroupsToFilter = args[2];
-                    ImportPriceGroupsCommand(container, filePath, priceGroupsToFilter, fileInfo);
+                    string priceGroupsToFilter = string.Empty;
+                    if (args.Length > 2)
+                        priceGroupsToFilter= args[2];
+                    ImportPriceGroupsCommand(container, filePath, fileInfo, priceGroupsToFilter);
                 }
                 else if(parameter == "-ar")
                     ImportAutomationRulesCommand(container, filePath, isFirstLineHeader, fileInfo);
@@ -240,31 +254,40 @@ namespace UserGroupsCsvToJson
             var priceGroupStore = container.Resolve<PriceGroupStore>();
             var logger = container.Resolve<ILog>();
 
-            var automationRuleRawDtos = automationRuleParser.Parse(filePath, isFirstLineHeader);
+            IEnumerable<AutomationRuleRawDto> automationRuleRawDtos = automationRuleParser.Parse(filePath, isFirstLineHeader);
 
             var automationRuleGenerator = container.Resolve<AutomationRuleGenerator>();
             List<AutomationRule> automationRules = automationRuleGenerator.Generate(automationRuleRawDtos);
 
-            var automationRuleDtos = automationRules.Select(a => a.SettingDto);
-            automationRuleParser.Export(automationRuleDtos, fileInfo.DirectoryName);
+            IEnumerable<AutomationRuleSettingDto> automationRuleDtos = automationRules.Select(a => a.SettingDto);
+            automationRuleParser.Export(automationRuleDtos, fileInfo.DirectoryName, $"automationRules_{automationRules.Select(a => a.RawDto.Buyer).FirstOrDefault()}.json");
 
-            automationRuleParser.Upload(automationRules);
-
-            foreach(var ar in automationRuleRawDtos)
+            foreach (var ar in automationRules)
             {
-                var updateResult = priceGroupStore.UpdateFrom(ar);
+                var automationRuleRawDto = ar.RawDto;
+                var updateResult = priceGroupStore.UpdateFrom(automationRuleRawDto);
 
                 if(updateResult.Success)
-                    logger.Info($"Updated price group {ar.PriceGroupId} - {ar.PriceGroupName}");
+                {
+                    logger.Info($"Updated price group {automationRuleRawDto.PriceGroupId} - {automationRuleRawDto.PriceGroupName} for buyer {automationRuleRawDto.Buyer}");
+
+                    priceGroupStore.DeleteAutomationRulesFor(updateResult.Result);
+                    logger.Info($"Deleting existing rules for price group {automationRuleRawDto.PriceGroupId} - {automationRuleRawDto.PriceGroupName} for buyer {automationRuleRawDto.Buyer}");
+
+                    if (updateResult.Result.CustomRulesAppliedFlag)
+                    {
+                        automationRuleParser.Upload(new []{ar});
+                    }
+                }
                 else
-                    logger.Error($"FAILED to updated price group {ar.PriceGroupId} - {ar.PriceGroupName}");
+                    logger.Error($"FAILED to update price group {automationRuleRawDto.PriceGroupId} - {automationRuleRawDto.PriceGroupName} for buyer {automationRuleRawDto.Buyer}");
             }
         }
 
         private static void ImportPriceGroupsCommand(UnityContainer container,
                                                      string filePath,
-                                                     string priceGroupsToFilter,
-                                                     FileInfo fileInfo)
+                                                     FileInfo fileInfo,
+                                                     string priceGroupsToFilter)
         {
             var priceGroupsParser = container.Resolve<PriceGroupsParser>();
 
@@ -448,17 +471,36 @@ namespace UserGroupsCsvToJson
             }
         }
 
-        private void UpdateUserPriceGroupsCommand(UnityContainer container, string userName)
+        private static void UpdateUserPriceGroupsCommand(UnityContainer container, string[] userNames)
         {
             var logger = container.Resolve<ILog>();
             var priceGroupStore = container.Resolve<PriceGroupStore>();
+            var automationRuleStore = container.Resolve<AutomationRuleStore>();
 
-            logger.Info($"Getting price groups for {userName}");
-
-            var userPriceGroups = priceGroupStore.GetAllFor(userName);
-            foreach(var priceGroup in userPriceGroups)
+            foreach(string userName in userNames)
             {
-                
+                logger.Info($"Getting price groups for {userName}");
+
+                var userPriceGroups = priceGroupStore.GetAllFor(userName);
+                foreach(var priceGroup in userPriceGroups)
+                {
+                    var automationRules = automationRuleStore.GetAll(new[] {priceGroup});
+                    var automationRuleComparer = new AutomationRuleComparer();
+                    foreach(var automationRule in automationRules)
+                    {
+                        DefaultAutomationRuleSettingDto automationRuleDefaults =
+                            automationRuleStore.GetDefaultRules().Result.Result;
+                        bool areCustomRules = !automationRuleComparer.Equals(automationRule, automationRuleDefaults);
+
+                        priceGroup.CustomRulesAppliedFlag = areCustomRules;
+                    }
+                    var updateResult = priceGroupStore.Update(priceGroup);
+
+                    if(updateResult.Success)
+                        logger.Info($"Updated price group {priceGroup.Id} - {priceGroup.Name}");
+                    else
+                        logger.Error($"FAILED to updated price group {priceGroup.Id} - {priceGroup.Name}");
+                }
             }
         }
 
