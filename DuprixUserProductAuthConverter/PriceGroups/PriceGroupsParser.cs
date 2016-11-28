@@ -91,7 +91,7 @@ namespace UserGroupsCsvToJson
                     }                    
                 }
             }
-            if(priceGroupsToFilter.Any())
+            if(priceGroupsToFilter.Any(p => !string.IsNullOrWhiteSpace(p)) )
             {                
                 priceGroupRawDtos = priceGroupRawDtos.Where(p => priceGroupsToFilter.Contains(p.Name)).ToList();
             }

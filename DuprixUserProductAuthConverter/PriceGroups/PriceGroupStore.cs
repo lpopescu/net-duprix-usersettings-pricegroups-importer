@@ -65,20 +65,31 @@ namespace UserGroupsCsvToJson
             if(!priceGroupsRepositoryResult.Success)
                 return priceGroupResult;
 
+            PriceGroupDto existingPriceGroup = priceGroupsRepositoryResult.Result;
             var priceGroup = _mapper.Map<PriceGroupDto>(automationRuleRawDto);
-            priceGroup.Products = priceGroupsRepositoryResult.Result.Products;
 
-            if (priceGroupsRepositoryResult.Result.PriceRule.Id != automationRuleRawDto.PriceRuleId)
-            {
-                var repoResult = _priceRuleRepository.GetAsync(automationRuleRawDto.PriceRuleId).Result.Result;
-                priceGroup.PriceRule = repoResult;
-            }
-            else
-            {
-                priceGroup.PriceRule = priceGroupsRepositoryResult.Result.PriceRule;
-            }
+            priceGroup.Products = existingPriceGroup.Products;
+            SetPriceRule(automationRuleRawDto, existingPriceGroup, priceGroup);
+            SetProductType(automationRuleRawDto, existingPriceGroup, priceGroup);
 
-            if(priceGroupsRepositoryResult.Result.ProductType.Id != automationRuleRawDto.ProductTypeId)
+            var automationRuleComparer = new AutomationRuleComparer();
+            DefaultAutomationRuleSettingDto automationRuleDefaults = _automationRules.GetDefaultSettingsAsync().Result.Result;
+            bool areDefaultRules = !automationRuleComparer.Equals(automationRuleRawDto, automationRuleDefaults);
+
+            priceGroup.CustomRulesAppliedFlag = areDefaultRules;
+            priceGroup.ShouldBeAutomated = existingPriceGroup.ShouldBeAutomated;
+
+            RepositoryResult<PriceGroupDto> updateResult = _priceGroupRepository.PutAsync(priceGroup).Result;
+
+            priceGroupResult = updateResult;
+            return priceGroupResult;
+        }
+
+        private void SetProductType(AutomationRuleRawDto automationRuleRawDto,
+                                    PriceGroupDto existingPriceGroup,
+                                    PriceGroupDto priceGroup)
+        {
+            if(existingPriceGroup.ProductType.Id != automationRuleRawDto.ProductTypeId)
             {
                 var productHierarchyProductType =
                     _productTypeStore.GetProductType(automationRuleRawDto.ProductTypeId).Result;
@@ -89,14 +100,20 @@ namespace UserGroupsCsvToJson
                                          };
             }
             else
-            {
-                priceGroup.ProductType = priceGroupsRepositoryResult.Result.ProductType;
-            }
-            
-            var updateResult = _priceGroupRepository.PutAsync(priceGroup).Result;
+                priceGroup.ProductType = existingPriceGroup.ProductType;
+        }
 
-            priceGroupResult = updateResult;
-            return priceGroupResult;
+        private void SetPriceRule(AutomationRuleRawDto automationRuleRawDto,
+                                  PriceGroupDto existingPriceGroup,
+                                  PriceGroupDto priceGroup)
+        {
+            if(existingPriceGroup.PriceRule.Id != automationRuleRawDto.PriceRuleId)
+            {
+                var priceRuleDto = _priceRuleRepository.GetAsync(automationRuleRawDto.PriceRuleId).Result.Result;
+                priceGroup.PriceRule = priceRuleDto;
+            }
+            else
+                priceGroup.PriceRule = existingPriceGroup.PriceRule;
         }
 
         public RepositoryResult<PriceGroupDto> Get(int priceGroupid)
