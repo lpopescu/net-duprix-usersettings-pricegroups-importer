@@ -277,6 +277,7 @@ namespace UserGroupsCsvToJson
                     if (updateResult.Result.CustomRulesAppliedFlag)
                     {
                         automationRuleParser.Upload(new []{ar});
+                        logger.Info($"Imported automation rules for price group {automationRuleRawDto.PriceGroupId} - {automationRuleRawDto.PriceGroupName} for buyer {automationRuleRawDto.Buyer}");
                     }
                 }
                 else
