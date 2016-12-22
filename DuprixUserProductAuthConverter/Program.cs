@@ -38,7 +38,7 @@ namespace UserGroupsCsvToJson
 
         private static void Main(string[] args)
         {
-            if(args[0] == null)
+            if(!args.Any())
             {
                 PrintParametersUsage("The parameter was not specified.");
                 return;
